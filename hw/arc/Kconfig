@@ -1,0 +1,4 @@
+config ARC_SIM
+    bool
+    default y
+    depends on ARC

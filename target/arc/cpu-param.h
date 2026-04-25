@@ -1,0 +1,10 @@
+
+
+#ifndef ARC_CPU_PARAM_H
+#define ARC_CPU_PARAM_H
+
+#define TARGET_PAGE_BITS 13
+
+#define TARGET_VIRT_ADDR_SPACE_BITS 32
+
+#endif

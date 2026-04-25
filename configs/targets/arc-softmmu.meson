@@ -1,0 +1,3 @@
+TARGET_ARCH = 'arc'
+TARGET_BASE_ARCH = 'arc'
+TARGET_SYSTBL_ABI = 'common'
