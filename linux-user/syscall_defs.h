@@ -74,7 +74,8 @@
     || defined(TARGET_M68K)                                             \
     || defined(TARGET_S390X) || defined(TARGET_OR1K)                    \
     || defined(TARGET_RISCV)                                            \
-    || defined(TARGET_XTENSA) || defined(TARGET_LOONGARCH64)
+    || defined(TARGET_XTENSA) || defined(TARGET_LOONGARCH64)            \
+    || defined(TARGET_ARC)
 
 #define TARGET_IOC_SIZEBITS     14
 #define TARGET_IOC_DIRBITS      2
@@ -1977,7 +1978,7 @@ struct target_stat64  {
 };
 
 #elif defined(TARGET_OR1K) \
-    || defined(TARGET_RISCV) || defined(TARGET_HEXAGON) || defined(TARGET_LOONGARCH)
+    || defined(TARGET_RISCV) || defined(TARGET_HEXAGON) || defined(TARGET_LOONGARCH) || defined(TARGET_ARC)
 
 /* These are the asm-generic versions of the stat and stat64 structures */
 

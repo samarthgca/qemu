@@ -23,6 +23,8 @@
 #include "signal-common.h"
 #include "target_mman.h"
 
+#pragma GCC diagnostic ignored "-Wunused-function"  /* add here */
+
 struct syscallname {
     int nr;
     const char *name;

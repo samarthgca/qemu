@@ -147,6 +147,9 @@
 #include "fd-trans.h"
 #include "user/cpu_loop.h"
 
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wnested-externs"
+
 #if defined(__powerpc__)
 /*
  * On PowerPC termios2 is lacking and termios along with ioctls w/o 2
