@@ -19,7 +19,19 @@ void cpu_loop(CPUArchState *env)
         case EXCP_ATOMIC:
             cpu_exec_step_atomic(cs);
             break;
+        case EXCP_SYSCALL:
+            env->r[0] = do_syscall(env, env->r[8], env->r[0], env->r[1], env->r[2], env->r[3], env->r[4], env->r[5], 0, 0);
+            break;
+        case EXCP_ILLEGAL:
+            fprintf(stderr, "ILLEGAL INSN at PC=0x%x\n", env->pc);
+            exit(1);
+        case EXCP_INTERRUPT:
+            break;
+        case 0:
+            fprintf(stderr, "cpu_exec returned 0, PC=0x%x\n", env->pc);
+            exit(0);
         default:
+            fprintf(stderr, "unhandled exception: trapnr = %d (0x%x)\n", trapnr, trapnr);
             g_assert_not_reached();
         }
         process_pending_signals(env);
