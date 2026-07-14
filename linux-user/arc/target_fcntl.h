@@ -1,0 +1,5 @@
+#ifndef ARC_TARGET_FCNTL_H
+#define ARC_TARGET_FCNTL_H
+#include "../generic/fcntl.h"
+#endif
+
