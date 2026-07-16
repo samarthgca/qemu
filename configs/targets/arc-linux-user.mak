@@ -1,5 +1,5 @@
 TARGET_ARCH=arc
-TARGET_BIG_ENDIAN=y
+TARGET_BIG_ENDIAN=n
 TARGET_SYSTBL_ABI=common,32,arc,time32,stat64,rlimit,renameat
 TARGET_SYSTBL=syscall.tbl
 TARGET_LONG_BITS=32

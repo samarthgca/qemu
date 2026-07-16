@@ -4,7 +4,7 @@
 #include "user/cpu_loop.h"
 #include "signal-common.h"
 
-void cpu_loop(CPUArchState *env)
+void cpu_loop(CPUArcState *env)
 {
     CPUState *cs = env_cpu(env);
     int trapnr;
@@ -15,7 +15,9 @@ void cpu_loop(CPUArchState *env)
         cpu_exec_end(cs);
         qemu_process_cpu_events(cs);
         switch (trapnr) {
-	    default:
+            case EXCP_INTERRUPT:
+                break;
+	        default:
                 g_assert_not_reached();
         }
     }
@@ -23,4 +25,6 @@ void cpu_loop(CPUArchState *env)
 
 void init_main_thread(CPUState *cs, struct image_info *info)
 {
+    CPUArchState *env = cpu_env(cs);
+    env->pc = info->entry;
 }

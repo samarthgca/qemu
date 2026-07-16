@@ -11,6 +11,9 @@
 #include "exec/cpu-common.h"
 #include "exec/cpu-defs.h"
 
+void arc_translate_init(void);
+void arc_translate_code(CPUState *cs, TranslationBlock *tb, int *max_insns, vaddr pc, void *host_pc);
+
 typedef struct CPUArchState {
 	uint32_t r[32];
 	uint32_t pc;
