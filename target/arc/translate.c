@@ -73,7 +73,10 @@ static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
     uint16_t insn_hi = translator_lduw_end(cpu_env(cs), &dc->base, dc->base.pc_next, MO_LE);
     uint16_t insn_lo = translator_lduw_end(cpu_env(cs), &dc->base, dc->base.pc_next + 2, MO_LE);
     uint32_t insn = (insn_hi << 16) | insn_lo;
-    decode(dc, insn);
+    if (!decode(dc, insn)) {
+          gen_helper_halt(tcg_env);
+          dc->base.is_jmp = DISAS_NORETURN;
+      }
     dc->base.pc_next += 4;
 }
 
