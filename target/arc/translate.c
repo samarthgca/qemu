@@ -9,12 +9,18 @@
 #include "qemu/qemu-print.h"
 #include "exec/translation-block.h"
 #include "exec/target_page.h"
+#include "exec/helper-proto.h"
+#include "exec/helper-gen.h"
 
 typedef struct DisasContext {
     DisasContextBase base;
 } DisasContext;
 
+#define HELPER_H "helper.h"
+#include "exec/helper-info.c.inc"
 #include "decode-insns.c.inc"
+#undef  HELPER_H
+
 static TCGv_i32 cpu_pc;
 static TCGv_i32 cpu_regs[32];
 void arc_translate_init(void)
@@ -39,20 +45,50 @@ static bool trans_MOV(DisasContext *dc, arg_mov *a)
     return true;
 }
 
+static bool trans_MOV_U6(DisasContext *dc, arg_mov_u6 *a)
+{
+    tcg_gen_movi_i32(cpu_regs[a->b], a->u);
+    return true;
+}
+
+static bool trans_MOV_S12(DisasContext *dc, arg_mov_s12 *a)
+{
+    tcg_gen_movi_i32(cpu_regs[a->b], a->s);
+    return true;
+}
+
+static bool trans_FLAG_U6(DisasContext *dc, arg_flag *a)
+{
+    if (a->u & 1) {
+        gen_helper_halt(tcg_env);
+        dc->base.is_jmp = DISAS_NORETURN;
+    }
+    return true;
+}
+
+
 static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
 {
     DisasContext *dc = container_of(dcbase, DisasContext, base);
-    uint32_t insn = translator_ldl_end(cpu_env(cs), &dc->base, dc->base.pc_next, MO_BE);
+    uint16_t insn_hi = translator_lduw_end(cpu_env(cs), &dc->base, dc->base.pc_next, MO_LE);
+    uint16_t insn_lo = translator_lduw_end(cpu_env(cs), &dc->base, dc->base.pc_next + 2, MO_LE);
+    uint32_t insn = (insn_hi << 16) | insn_lo;
     decode(dc, insn);
     dc->base.pc_next += 4;
 }
 
 static void arc_tr_init_disas_context(DisasContextBase *db, CPUState *cs) { }
 
-static void arc_tr_tb_start(DisasContextBase *db, CPUState *cs) { }
+static void arc_tr_tb_start(DisasContextBase *db, CPUState *cs)
+{
 
-static void arc_tr_insn_start(DisasContextBase *db, CPUState *cs) { }
+}
 
+static void arc_tr_insn_start(DisasContextBase *db, CPUState *cs)
+{
+    DisasContext *dc = container_of(db, DisasContext, base);
+    tcg_gen_insn_start(dc->base.pc_next, 0, 0);
+}
 static void arc_tr_tb_stop(DisasContextBase *db, CPUState *cs) 
 { 
     DisasContext *dc = container_of(db, DisasContext, base);

@@ -1,0 +1,1 @@
+DEF_HELPER_FLAGS_1(halt, TCG_CALL_NO_WG, void, env)
