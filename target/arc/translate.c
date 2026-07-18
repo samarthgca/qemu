@@ -19,6 +19,7 @@ typedef struct DisasContext {
 #define HELPER_H "helper.h"
 #include "exec/helper-info.c.inc"
 #include "decode-insns.c.inc"
+#include "decode-insns16.c.inc"
 #undef  HELPER_H
 
 static TCGv_i32 cpu_pc;
@@ -59,6 +60,26 @@ static bool trans_MOV_U6(DisasContext *dc, arg_mov_u6 *a)
 static bool trans_MOV_S12(DisasContext *dc, arg_mov_s12 *a)
 {
     tcg_gen_movi_i32(cpu_regs[a->b], a->s);
+    return true;
+}
+
+static bool trans_MOV_CC_F(DisasContext *dc, arg_mov_cc_f *a)
+{
+    if (a->q == 0) {
+      tcg_gen_mov_i32(cpu_regs[a->b], cpu_regs[a->c]);
+    } else if (a->q == 1) {
+      tcg_gen_movcond_i32(TCG_COND_EQ, cpu_regs[a->b], cpu_zf, tcg_constant_i32(1), cpu_regs[a->c], cpu_regs[a->b]);
+    }
+    return true;
+}
+
+static bool trans_MOV_CC_F_U6(DisasContext *dc, arg_mov_cc_f_u6 *a)
+{
+    if (a->q == 0) {
+        tcg_gen_movi_i32(cpu_regs[a->b], a->u);
+    } else if (a->q == 1) {
+        tcg_gen_movcond_i32(TCG_COND_EQ, cpu_regs[a->b], cpu_zf, tcg_constant_i32(1), tcg_constant_i32(a->u), cpu_regs[a->b]);
+    }
     return true;
 }
 
@@ -139,13 +160,23 @@ static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
 {
     DisasContext *dc = container_of(dcbase, DisasContext, base);
     uint16_t insn_hi = translator_lduw_end(cpu_env(cs), &dc->base, dc->base.pc_next, MO_LE);
-    uint16_t insn_lo = translator_lduw_end(cpu_env(cs), &dc->base, dc->base.pc_next + 2, MO_LE);
-    uint32_t insn = (insn_hi << 16) | insn_lo;
-    if (!decode(dc, insn)) {
-          gen_helper_halt(tcg_env);
-          dc->base.is_jmp = DISAS_NORETURN;
-      }
-    dc->base.pc_next += 4;
+    uint16_t op5 = (insn_hi >> 11) & 0x1F;
+
+    if (op5 <= 0x0B) {
+        uint16_t insn_lo = translator_lduw_end(cpu_env(cs), &dc->base, dc->base.pc_next + 2, MO_LE);
+        uint32_t insn = (insn_hi << 16) | insn_lo;
+        if (!decode(dc, insn)) {
+            gen_helper_halt(tcg_env);
+            dc->base.is_jmp = DISAS_NORETURN;
+         }
+        dc->base.pc_next += 4;
+    } else {
+        if (!decode16(dc, insn_hi)) {
+            gen_helper_halt(tcg_env);
+            dc->base.is_jmp = DISAS_NORETURN;
+        }
+        dc->base.pc_next += 2;
+    }
 }
 
 static void arc_tr_init_disas_context(DisasContextBase *db, CPUState *cs) { }
