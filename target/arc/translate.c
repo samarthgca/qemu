@@ -102,6 +102,24 @@ static bool trans_MPY_s12(DisasContext *dc, arg_mpy_s12 *a)
     return true;
 }
 
+static bool trans_SUB(DisasContext *dc, arg_SUB *a)
+{
+    tcg_gen_sub_i32(cpu_regs[a->a], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_SUB_u6(DisasContext *dc, arg_SUB_u6 *a)
+{
+    tcg_gen_subi_i32(cpu_regs[a->a], cpu_regs[a->b], a->u);
+    return true;
+}
+
+static bool trans_SUB_s12(DisasContext *dc, arg_SUB_s12 *a)
+{
+    tcg_gen_subi_i32(cpu_regs[a->b], cpu_regs[a->b], a->s);
+    return true;
+}
+
 static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
 {
     DisasContext *dc = container_of(dcbase, DisasContext, base);
