@@ -66,6 +66,23 @@ static bool trans_FLAG_U6(DisasContext *dc, arg_flag *a)
     return true;
 }
 
+static bool trans_ADD(DisasContext *dc, arg_add *a)
+{
+    tcg_gen_add_i32(cpu_regs[a->a], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_ADD_U6(DisasContext *dc, arg_add_u6 *a)
+{
+    tcg_gen_addi_i32(cpu_regs[a->a], cpu_regs[a->b], a->u);
+    return true;
+}
+
+static bool trans_ADD_S12(DisasContext *dc, arg_add_s12 *a)
+{
+    tcg_gen_addi_i32(cpu_regs[a->b], cpu_regs[a->b], a->s);
+    return true;
+}
 
 static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
 {
