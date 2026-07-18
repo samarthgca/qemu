@@ -3254,6 +3254,7 @@ config_target_info = {}
 
 disassemblers = {
   'alpha' : ['CONFIG_ALPHA_DIS'],
+  'arc' : ['CONFIG_ARC_DIS'],
   'avr' : ['CONFIG_AVR_DIS'],
   'hexagon' : ['CONFIG_HEXAGON_DIS'],
   'hppa' : ['CONFIG_HPPA_DIS'],

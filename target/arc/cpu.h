@@ -17,6 +17,9 @@ void arc_translate_code(CPUState *cs, TranslationBlock *tb, int *max_insns, vadd
 typedef struct CPUArchState {
 	uint32_t r[32];
 	uint32_t pc;
+    uint32_t zf;
+    uint32_t nf;
+    uint32_t cf;
 }CPUArcState;
 
 struct ArchCPU {

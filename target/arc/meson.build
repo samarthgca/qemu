@@ -1,7 +1,7 @@
 gen = decodetree.process('insns.decode')
 arc_ss = ss.source_set()
 arc_ss.add(gen)
-arc_ss.add(files( 'cpu.c' , 'translate.c' , 'helper.c'))
+arc_ss.add(files( 'cpu.c' , 'translate.c' , 'helper.c', 'disas.c'))
 arc_system_ss = ss.source_set()
 arc_system_ss.add(files())
 

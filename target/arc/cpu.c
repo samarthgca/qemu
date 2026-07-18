@@ -47,6 +47,12 @@ static ObjectClass *arc_cpu_class_by_name(const char *cpu_model)
 
 static DeviceRealize arc_parent_realize;
 
+static void arc_disas_set_info(const CPUState *cpu, disassemble_info *info)
+{
+    info->endian = BFD_ENDIAN_LITTLE;
+    info->print_insn = print_insn_arc;
+}
+
 static void arc_cpu_class_init(ObjectClass *oc, const void *data)
 {
     CPUClass *cc = CPU_CLASS(oc);                                                                                                          
@@ -55,6 +61,7 @@ static void arc_cpu_class_init(ObjectClass *oc, const void *data)
     DeviceClass *dc = DEVICE_CLASS(oc);
     device_class_set_parent_realize(dc, arc_cpu_realizefn, &arc_parent_realize);
     cc->set_pc = arc_cpu_set_pc;
+    cc->disas_set_info = arc_disas_set_info;
 
 }
 

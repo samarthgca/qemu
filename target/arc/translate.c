@@ -23,6 +23,9 @@ typedef struct DisasContext {
 
 static TCGv_i32 cpu_pc;
 static TCGv_i32 cpu_regs[32];
+static TCGv_i32 cpu_zf;
+static TCGv_i32 cpu_nf;
+static TCGv_i32 cpu_cf;
 void arc_translate_init(void)
 {
     static const char * const regnames[] = {
@@ -36,7 +39,9 @@ void arc_translate_init(void)
     {
         cpu_regs[i] = tcg_global_mem_new_i32(tcg_env,offsetof(CPUArcState, r[i]),regnames[i]);
     }
-
+    cpu_zf = tcg_global_mem_new_i32(tcg_env, offsetof(CPUArcState, zf), "zf");
+    cpu_nf = tcg_global_mem_new_i32(tcg_env, offsetof(CPUArcState, nf), "nf");
+    cpu_cf = tcg_global_mem_new_i32(tcg_env, offsetof(CPUArcState, cf), "cf");
 }
 
 static bool trans_MOV(DisasContext *dc, arg_mov *a)
@@ -102,21 +107,31 @@ static bool trans_MPY_s12(DisasContext *dc, arg_mpy_s12 *a)
     return true;
 }
 
-static bool trans_SUB(DisasContext *dc, arg_SUB *a)
+static bool trans_SUB(DisasContext *dc, arg_sub *a)
 {
     tcg_gen_sub_i32(cpu_regs[a->a], cpu_regs[a->b], cpu_regs[a->c]);
     return true;
 }
 
-static bool trans_SUB_u6(DisasContext *dc, arg_SUB_u6 *a)
+static bool trans_SUB_u6(DisasContext *dc, arg_sub_u6 *a)
 {
     tcg_gen_subi_i32(cpu_regs[a->a], cpu_regs[a->b], a->u);
     return true;
 }
 
-static bool trans_SUB_s12(DisasContext *dc, arg_SUB_s12 *a)
+static bool trans_SUB_s12(DisasContext *dc, arg_sub_s12 *a)
 {
     tcg_gen_subi_i32(cpu_regs[a->b], cpu_regs[a->b], a->s);
+    return true;
+}
+
+static bool trans_CMP(DisasContext *dc, arg_cmp *a)
+{
+    TCGv_i32 tmp = tcg_temp_new_i32();
+    tcg_gen_sub_i32(tmp, cpu_regs[a->b], cpu_regs[a->c]);
+    tcg_gen_setcond_i32(TCG_COND_EQ, cpu_zf, tmp, tcg_constant_i32(0));
+    tcg_gen_setcond_i32(TCG_COND_LT, cpu_nf, tmp, tcg_constant_i32(0));
+    tcg_gen_setcond_i32(TCG_COND_LTU, cpu_cf, cpu_regs[a->b], cpu_regs[a->c]);
     return true;
 }
 
