@@ -41,6 +41,12 @@ MPY_u6     00100   ...   01011010   .   ...   ......   ......   &mpy_u6  a=%a b=
 &mpy_s12 b s f
 MPY_s12     00100   ...   10011010   .   ...   ......   ......   &mpy_s12  b=%b s=%s f=%f
 
+&mpy_cc_f b c q f
+MPY_CC_F   00100   ...   11011010   .   ...   ......   0   ..... &mpy_cc_f b=%b c=%c q=%q f=%f
+
+&mpy_cc_f_u6 b u q f
+MPY_CC_F_U6   00100   ...   11011010   .   ...   ......   1   ..... &mpy_cc_f_u6 b=%b u=%u q=%q f=%f
+
 &sub a b c f
 SUB     00100   ...   00000010   .   ...   ......   ......   &sub a=%a b=%b c=%c f=%f
 

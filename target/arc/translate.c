@@ -23,10 +23,12 @@ typedef struct DisasContext {
 #undef  HELPER_H
 
 static TCGv_i32 cpu_pc;
+static const int arc_reduced_regs[8] = {0, 1, 2, 3, 12, 13, 14, 15};
 static TCGv_i32 cpu_regs[32];
 static TCGv_i32 cpu_zf;
 static TCGv_i32 cpu_nf;
 static TCGv_i32 cpu_cf;
+
 void arc_translate_init(void)
 {
     static const char * const regnames[] = {
@@ -83,6 +85,24 @@ static bool trans_MOV_CC_F_U6(DisasContext *dc, arg_mov_cc_f_u6 *a)
     return true;
 }
 
+static bool trans_MOV_S_H_S3(DisasContext *dc, arg_mov_s_h_s3 *a)
+{
+    tcg_gen_movi_i32(cpu_regs[a->h], a->s);
+    return true;
+}
+
+static bool trans_MOV_S_NE(DisasContext *dc, arg_mov_s_ne *a)
+{
+    tcg_gen_movcond_i32(TCG_COND_NE, cpu_regs[arc_reduced_regs[a->b]],cpu_zf, tcg_constant_i32(0),cpu_regs[a->h], cpu_regs[a->b]);
+    return true;
+}
+
+static bool trans_MOV_S_U8(DisasContext *dc, arg_mov_s_u8 *a)
+{
+    tcg_gen_movi_i32(cpu_regs[arc_reduced_regs[a->b]], a->u);
+    return true;
+}
+
 static bool trans_FLAG_U6(DisasContext *dc, arg_flag *a)
 {
     if (a->u & 1) {
@@ -128,6 +148,37 @@ static bool trans_MPY_s12(DisasContext *dc, arg_mpy_s12 *a)
     return true;
 }
 
+static bool trans_MPY_CC_F(DisasContext *dc, arg_mpy_cc_f *a)
+{
+    if (a->q == 0) {
+        tcg_gen_mul_i32(cpu_regs[a->b], cpu_regs[a->b], cpu_regs[a->c]);
+    } else if (a->q == 1) {
+        TCGv_i32 tmp = tcg_temp_new_i32();
+        tcg_gen_mul_i32(tmp, cpu_regs[a->b], cpu_regs[a->c]);
+        tcg_gen_movcond_i32(TCG_COND_EQ, cpu_regs[a->b], cpu_zf, tcg_constant_i32(1), tmp, cpu_regs[a->b]);
+    }
+      return true;
+    return true;
+}
+
+static bool trans_MPY_CC_F_U6(DisasContext *dc, arg_mpy_cc_f_u6 *a)
+{
+    if (a->q == 0) {
+        tcg_gen_muli_i32(cpu_regs[a->b], cpu_regs[a->b], a->u);
+    } else if (a->q == 1) {
+        TCGv_i32 tmp = tcg_temp_new_i32();
+        tcg_gen_muli_i32(tmp, cpu_regs[a->b], a->u);
+        tcg_gen_movcond_i32(TCG_COND_EQ, cpu_regs[a->b], cpu_zf, tcg_constant_i32(1), tmp, cpu_regs[a->b]);
+      }
+      return true;
+
+}
+
+static bool trans_MPY_S(DisasContext *dc, arg_mpy_s *a)
+{
+    tcg_gen_mul_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
+    return true;
+}
 static bool trans_SUB(DisasContext *dc, arg_sub *a)
 {
     tcg_gen_sub_i32(cpu_regs[a->a], cpu_regs[a->b], cpu_regs[a->c]);
