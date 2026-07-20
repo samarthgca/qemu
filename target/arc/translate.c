@@ -438,6 +438,24 @@ static bool trans_XOR_S(DisasContext *dc, arg_xor_s *a)
     return true;
 }
 
+static bool trans_ASL(DisasContext *dc, arg_asl *a)
+{
+    tcg_gen_shl_i32(cpu_regs[a->b], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_ASL_U6(DisasContext *dc, arg_asl_u6 *a)
+{
+    tcg_gen_shli_i32(cpu_regs[a->b], cpu_regs[a->b], a->u);
+    return true;
+}
+
+static bool trans_ASL_S(DisasContext *dc, arg_asl_s *a)
+{
+    tcg_gen_shl_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
+    return true;
+}
+
 static bool trans_CMP(DisasContext *dc, arg_cmp *a)
 {
     TCGv_i32 tmp = tcg_temp_new_i32();
