@@ -342,6 +342,55 @@ static bool trans_AND_S(DisasContext *dc, arg_and_s *a)
     return true;
 }
 
+static bool trans_OR(DisasContext *dc, arg_or *a)
+{
+    tcg_gen_or_i32(cpu_regs[a->a], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_OR_U6(DisasContext *dc, arg_or_u6 *a)
+{
+    tcg_gen_ori_i32(cpu_regs[a->a], cpu_regs[a->b], a->u);
+    return true;
+}
+
+static bool trans_OR_S12(DisasContext *dc, arg_or_s12 *a)
+{
+    tcg_gen_ori_i32(cpu_regs[a->b], cpu_regs[a->b], a->s);
+    return true;
+}
+
+static bool trans_OR_CC(DisasContext *dc, arg_or_cc *a)
+{
+    if (a->q == 0) {
+        tcg_gen_or_i32(cpu_regs[a->b], cpu_regs[a->b], cpu_regs[a->c]);
+    } else if (a->q == 2) {
+        TCGv_i32 tmp = tcg_temp_new_i32();
+        tcg_gen_or_i32(tmp, cpu_regs[a->b], cpu_regs[a->c]);
+        tcg_gen_movcond_i32(TCG_COND_EQ, cpu_regs[a->b], cpu_zf, tcg_constant_i32(0), tmp, cpu_regs[a->b]);
+    }
+    return true;
+}
+
+static bool trans_OR_CC_U6(DisasContext *dc, arg_or_cc_u6 *a)
+{
+    if (a->q == 0) {
+        tcg_gen_ori_i32(cpu_regs[a->b], cpu_regs[a->b], a->u);
+    } else if (a->q == 2) {
+        TCGv_i32 tmp = tcg_temp_new_i32();
+        tcg_gen_ori_i32(tmp, cpu_regs[a->b], a->u);
+        tcg_gen_movcond_i32(TCG_COND_EQ, cpu_regs[a->b], cpu_zf, tcg_constant_i32(0), tmp, cpu_regs[a->b]);
+    }
+    return true;
+}
+
+static bool trans_OR_S(DisasContext *dc, arg_or_s *a)
+{
+    tcg_gen_or_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
+    return true;
+}
+
+
 static bool trans_CMP(DisasContext *dc, arg_cmp *a)
 {
     TCGv_i32 tmp = tcg_temp_new_i32();
