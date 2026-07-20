@@ -28,6 +28,7 @@ static TCGv_i32 cpu_regs[32];
 static TCGv_i32 cpu_zf;
 static TCGv_i32 cpu_nf;
 static TCGv_i32 cpu_cf;
+#define SP 28
 
 void arc_translate_init(void)
 {
@@ -35,7 +36,7 @@ void arc_translate_init(void)
         "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7",
         "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15",
         "r16", "r17", "r18", "r19", "r20", "r21", "r22", "r23",
-        "r24", "r25", "r26", "r27", "r28", "r29", "r30", "r31",
+        "r24", "r25", "r26", "r27", "SP", "r29", "r30", "r31",
     };
     cpu_pc = tcg_global_mem_new_i32(tcg_env, offsetof(CPUArcState, pc), "pc");
     for (int i = 0; i < 32; i++) 
@@ -130,6 +131,72 @@ static bool trans_ADD_S12(DisasContext *dc, arg_add_s12 *a)
     return true;
 }
 
+static bool trans_ADD_CC_F(DisasContext *dc, arg_add_cc_f *a)
+{
+    if (a->q == 0) {
+        tcg_gen_add_i32(cpu_regs[a->b], cpu_regs[a->b], cpu_regs[a->c]);
+    } else if (a->q == 1) {
+        TCGv_i32 tmp = tcg_temp_new_i32();
+        tcg_gen_add_i32(tmp, cpu_regs[a->b], cpu_regs[a->c]);
+        tcg_gen_movcond_i32(TCG_COND_EQ, cpu_regs[a->b], cpu_zf, tcg_constant_i32(1), tmp, cpu_regs[a->b]);
+    }
+    return true;
+}
+
+static bool trans_ADD_CC_F_U6(DisasContext *dc, arg_add_cc_f_u6 *a)
+{
+    if (a->q == 0) {
+        tcg_gen_addi_i32(cpu_regs[a->b], cpu_regs[a->b], a->u);
+    } else if (a->q == 1) {
+        TCGv_i32 tmp = tcg_temp_new_i32();
+        tcg_gen_addi_i32(tmp, cpu_regs[a->b], a->u);
+        tcg_gen_movcond_i32(TCG_COND_EQ, cpu_regs[a->b], cpu_zf, tcg_constant_i32(1), tmp, cpu_regs[a->b]);
+    }
+    return true;
+}
+
+static bool trans_ADD_S(DisasContext *dc, arg_add_s *a)
+{
+    tcg_gen_add_i32(cpu_regs[arc_reduced_regs[a->a]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
+    return true;
+}
+
+static bool trans_ADD_S_H(DisasContext *dc, arg_add_s_h *a)
+{
+    tcg_gen_add_i32(cpu_regs[a->b], cpu_regs[a->b], cpu_regs[a->h]);
+    return true;
+}
+
+static bool trans_ADD_S_S3(DisasContext *dc, arg_add_s_s3 *a)
+{
+    tcg_gen_addi_i32(cpu_regs[a->h], cpu_regs[a->h], a->s);
+    return true;
+}
+
+static bool trans_ADD_S_U7(DisasContext *dc, arg_add_s_u7 *a)
+{
+    tcg_gen_addi_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], a->u);
+    return true;
+}
+
+static bool trans_ADD_S_U3(DisasContext *dc, arg_add_s_u3 *a)
+{
+    tcg_gen_addi_i32(cpu_regs[arc_reduced_regs[a->c]], cpu_regs[arc_reduced_regs[a->b]], a->u);
+    return true;
+}
+
+static bool trans_ADD_S_SP_U7(DisasContext *dc, arg_add_s_sp_u7 *a)
+{
+    tcg_gen_addi_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[SP], a->u << 2);
+    return true;
+}
+
+static bool trans_ADD_S_SP_SP_U7(DisasContext *dc, arg_add_s_sp_sp_u7 *a)
+{
+    tcg_gen_addi_i32(cpu_regs[SP], cpu_regs[SP], a->u << 2);
+    return true;
+}
+
 static bool trans_MPY(DisasContext *dc, arg_mpy *a)
 {
     tcg_gen_mul_i32(cpu_regs[a->a], cpu_regs[a->b], cpu_regs[a->c]);
@@ -194,6 +261,36 @@ static bool trans_SUB_u6(DisasContext *dc, arg_sub_u6 *a)
 static bool trans_SUB_s12(DisasContext *dc, arg_sub_s12 *a)
 {
     tcg_gen_subi_i32(cpu_regs[a->b], cpu_regs[a->b], a->s);
+    return true;
+}
+
+static bool trans_SUB_S_U3(DisasContext *dc, arg_sub_s_u3 *a)
+{
+    tcg_gen_subi_i32(cpu_regs[arc_reduced_regs[a->c]], cpu_regs[arc_reduced_regs[a->b]], a->u);
+    return true;
+}
+
+static bool trans_SUB_S_NE(DisasContext *dc, arg_sub_s_ne *a)
+{
+    tcg_gen_sub_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]]);
+    return true;
+}
+
+static bool trans_SUB_S_C(DisasContext *dc, arg_sub_s_c *a)
+{
+    tcg_gen_sub_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
+    return true;
+}
+
+static bool trans_SUB_S_U5(DisasContext *dc, arg_sub_s_u5 *a)
+{
+    tcg_gen_subi_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], a->u);
+    return true;
+}
+
+static bool trans_SUB_S_SP_U7(DisasContext *dc, arg_sub_s_sp_u7 *a)
+{
+    tcg_gen_subi_i32(cpu_regs[SP], cpu_regs[SP], a->u << 2);
     return true;
 }
 

@@ -32,6 +32,12 @@ ADD_U6     00100   ...    01000000   .    ...     ......  ......  &add_u6 a=%a b
 &add_s12 b s f
 ADD_S12     00100   ...    10000000   .    ...     ......  ......  &add_s12 b=%b s=%s f=%f
 
+&add_cc_f b c q f
+ADD_CC_F   00100   ...   11000000   .   ...   ......   0   ..... &add_cc_f b=%b c=%c q=%q f=%f
+
+&add_cc_f_u6 b u q f
+ADD_CC_F_U6   00100   ...   11000000   .   ...   ......   1   ..... &add_cc_f_u6 b=%b u=%u q=%q f=%f
+
 &mpy a b c f
 MPY     00100   ...   00011010   .   ...   ......   ......   &mpy  a=%a b=%b c=%c f=%f
 
