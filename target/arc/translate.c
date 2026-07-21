@@ -486,11 +486,54 @@ static bool trans_ASR_U6(DisasContext *dc, arg_asr_u6 *a)
     return true;
 }
 
+static bool trans_ASR_S12(DisasContext *dc, arg_asr_s12 *a)
+{
+    tcg_gen_sari_i32(cpu_regs[a->b], cpu_regs[a->b], a->s);
+    return true;
+}
+
+static bool trans_ASR_S_U3(DisasContext *dc, arg_asr_s_u3 *a)
+{
+    tcg_gen_sari_i32(cpu_regs[arc_reduced_regs[a->c]], cpu_regs[arc_reduced_regs[a->b]], a->u);
+    return true;
+}
+
+static bool trans_ASR_CC(DisasContext *dc, arg_asr_cc *a)
+{
+    if (a->q == 0) {
+        tcg_gen_sar_i32(cpu_regs[a->b], cpu_regs[a->b], cpu_regs[a->c]);
+    } else if (a->q == 2) {
+        TCGv_i32 tmp = tcg_temp_new_i32();
+        tcg_gen_sar_i32(tmp, cpu_regs[a->b], cpu_regs[a->c]);
+        tcg_gen_movcond_i32(TCG_COND_EQ, cpu_regs[a->b], cpu_zf, tcg_constant_i32(0), tmp, cpu_regs[a->b]);
+    }
+    return true;
+}
+
 static bool trans_ASR_S(DisasContext *dc, arg_asr_s *a)
 {
     tcg_gen_sar_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
     return true;
 }
+
+static bool trans_ASR_CC_U6(DisasContext *dc, arg_asr_cc_u6 *a)
+{
+    if (a->q == 0) {
+        tcg_gen_sari_i32(cpu_regs[a->b], cpu_regs[a->b], a->u);
+    } else if (a->q == 2) {
+        TCGv_i32 tmp = tcg_temp_new_i32();
+        tcg_gen_sari_i32(tmp, cpu_regs[a->b], a->u);
+        tcg_gen_movcond_i32(TCG_COND_EQ, cpu_regs[a->b], cpu_zf, tcg_constant_i32(0), tmp, cpu_regs[a->b]);
+    }
+    return true;
+}
+
+static bool trans_ASR_S_U5(DisasContext *dc, arg_asr_s_u5 *a)
+{
+    tcg_gen_sari_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], a->u);
+    return true;
+}
+
 
 static bool trans_ROR(DisasContext *dc, arg_ror *a)
 {
@@ -498,19 +541,18 @@ static bool trans_ROR(DisasContext *dc, arg_ror *a)
     return true;
 }
 
-
 static bool trans_ROR_U6(DisasContext *dc, arg_ror_u6 *a)
 {
     tcg_gen_rotri_i32(cpu_regs[a->a], cpu_regs[a->b], a->u);
     return true;
 }
 
-
 static bool trans_ROR_S12(DisasContext *dc, arg_ror_s12 *a)
 {
-    tcg_gen_rotri_i32(cpu_regs[a->b], cpu_regs[a->b], a->s);
+    tcg_gen_rotri_i32(cpu_regs[a->b], cpu_regs[a->b], a->s & 31);
     return true;
 }
+
 
 static bool trans_ROR_CC(DisasContext *dc, arg_ror_cc *a)
 {
