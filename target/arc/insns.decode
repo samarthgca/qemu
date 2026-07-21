@@ -113,11 +113,29 @@ ASL   00100   ...   00101111   .   ...   ......   000000 &asl b=%b c=%c f=%f
 &asl_u6 b u f
 ASL_U6   00100   ...   01101111   .   ...   ......   000000 &asl_u6 b=%b u=%u f=%f
 
+&asl_s12 b s f
+ASL_S12   00101   ...   10000000   .   ...   ......   ...... &asl_s12 b=%b s=%s f=%f
+
+&asl_cc b c q
+ASL_CC 00101   ...   11000000   -   ...   ......   0   ..... &asl_cc b=%b c=%c q=%q
+
+&asl_cc_u6 b u q
+ASL_CC_U6 00101   ...   11000000   -   ...   ......   1   ..... &asl_cc_u6 b=%b u=%u q=%q
+
 &lsr b c f
 LSR   00100   ...   00101111   .   ...   ......   000010 &lsr b=%b c=%c f=%f
 
 &lsr_u6 b u f
 LSR_U6   00100   ...   01101111   .   ...   ......   000010 &lsr_u6 b=%b u=%u f=%f
+
+&lsr_s12 b s f
+LSR_S12   00101   ...   10000001   .   ...   ......   ...... &lsr_s12 b=%b s=%s f=%f
+
+&lsr_cc b c q
+LSR_CC  00101   ...   11000001   -   ...   ......   0   ..... &lsr_cc b=%b c=%c q=%q
+
+&lsr_cc_u6 b u q
+LSR_CC_U6   00101   ...   11000001   -   ...   ......   1   ..... &lsr_cc_u6 b=%b u=%u q=%q
 
 &asr b c f
 ASR   00100   ...   00101111   .   ...   ......   000001 &asr b=%b c=%c f=%f
