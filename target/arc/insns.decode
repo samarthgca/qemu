@@ -62,6 +62,12 @@ SUB_u6     00100   ...   01000010   .   ...   ......   ......   &sub_u6 a=%a b=%
 &sub_s12 b s f
 SUB_s12     00100   ...   10000010   .   ...   ......   ......   &sub_s12 b=%b s=%s f=%f
 
+&sub_cc b c f q
+SUB_CC   00100   ...   11000010   .   ...   ......   0   ..... &sub_cc b=%b c=%c f=%f q=%q
+
+&sub_cc_u6 b u f q
+SUB_CC_U6   00100   ...   11000010   .   ...   ......   1   ..... &sub_cc_u6 b=%b u=%u f=%f q=%q
+
 &and a b c f
 AND   00100   ...   00000100   .   ...   ......   ...... &and a=%a b=%b c=%c f=%f
 

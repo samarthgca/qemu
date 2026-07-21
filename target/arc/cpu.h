@@ -20,6 +20,7 @@ typedef struct CPUArchState {
     uint32_t zf;
     uint32_t nf;
     uint32_t cf;
+    uint32_t vf;
 }CPUArcState;
 
 struct ArchCPU {
