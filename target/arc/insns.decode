@@ -77,11 +77,11 @@ AND_U6   00100   ...   01000100   .   ...   ......   ...... &and_u6 a=%a b=%b u=
 &and_s12 b s f
 AND_S12   00100   ...   10000100   .   ...   ......   ...... &and_s12 b=%b s=%s f=%f
 
-&and_cc b c q
-AND_CC   00100   ...   11000100   -   ...   ......   0   ..... &and_cc b=%b c=%c q=%q
+&and_cc b c f q
+AND_CC   00100   ...   11000100   .   ...   ......   0   ..... &and_cc b=%b c=%c f=%f q=%q
 
-&and_cc_u6 b u q
-AND_CC_U6   00100   ...   11000100   -   ...   ......   1   ..... &and_cc_u6 b=%b u=%u q=%q
+&and_cc_u6 b u f q
+AND_CC_U6   00100   ...   11000100   .   ...   ......   1   ..... &and_cc_u6 b=%b u=%u f=%f q=%q
 
 &or a b c f
 OR   00100   ...   00000101   .    ...   ......   ...... &or a=%a b=%b c=%c f=%f
@@ -119,14 +119,20 @@ ASL   00100   ...   00101111   .   ...   ......   000000 &asl b=%b c=%c f=%f
 &asl_u6 b u f
 ASL_U6   00100   ...   01101111   .   ...   ......   000000 &asl_u6 b=%b u=%u f=%f
 
-&asl_s12 b s f
-ASL_S12   00101   ...   10000000   .   ...   ......   ...... &asl_s12 b=%b s=%s f=%f
+&asl_f a b c f
+ASL_F   00101   ...   00000000   .   ...   ......   ...... &asl_f a=%a b=%b c=%c f=%f
 
-&asl_cc b c q
-ASL_CC 00101   ...   11000000   -   ...   ......   0   ..... &asl_cc b=%b c=%c q=%q
+&asl_u6_f a b u f
+ASL_U6_F   00101   ...   01000000   .   ...   ......   ...... &asl_u6_f a=%a b=%b u=%u f=%f
 
-&asl_cc_u6 b u q
-ASL_CC_U6 00101   ...   11000000   -   ...   ......   1   ..... &asl_cc_u6 b=%b u=%u q=%q
+&asl_s12 a b s f
+ASL_S12   00101   ...   10000000   .   ...   ......   ...... &asl_s12 a=%a b=%b s=%s f=%f
+
+&asl_cc b c q f
+ASL_CC 00101   ...   11000000   .   ...   ......   0   ..... &asl_cc b=%b c=%c q=%q f=%f
+
+&asl_cc_u6 b u q f
+ASL_CC_U6 00101   ...   11000000   .   ...   ......   1   ..... &asl_cc_u6 b=%b u=%u q=%q f=%f
 
 &lsr b c f
 LSR   00100   ...   00101111   .   ...   ......   000010 &lsr b=%b c=%c f=%f
@@ -134,14 +140,20 @@ LSR   00100   ...   00101111   .   ...   ......   000010 &lsr b=%b c=%c f=%f
 &lsr_u6 b u f
 LSR_U6   00100   ...   01101111   .   ...   ......   000010 &lsr_u6 b=%b u=%u f=%f
 
+&lsr_f a b c f
+LSR_F   00101   ...   00000001   .   ...   ......   ...... &lsr_f a=%a b=%b c=%c f=%f
+
+&lsr_u6_f a b u f
+LSR_U6_F   00101   ...   01000001   .   ...   ......   ...... &lsr_u6_f a=%a b=%b u=%u f=%f
+
 &lsr_s12 b s f
 LSR_S12   00101   ...   10000001   .   ...   ......   ...... &lsr_s12 b=%b s=%s f=%f
 
-&lsr_cc b c q
-LSR_CC  00101   ...   11000001   -   ...   ......   0   ..... &lsr_cc b=%b c=%c q=%q
+&lsr_cc b c q f
+LSR_CC  00101   ...   11000001   .   ...   ......   0   ..... &lsr_cc b=%b c=%c q=%q f=%f
 
-&lsr_cc_u6 b u q
-LSR_CC_U6   00101   ...   11000001   -   ...   ......   1   ..... &lsr_cc_u6 b=%b u=%u q=%q
+&lsr_cc_u6 b u q f
+LSR_CC_U6   00101   ...   11000001   .   ...   ......   1   ..... &lsr_cc_u6 b=%b u=%u q=%q f=%f
 
 &asr b c f
 ASR   00100   ...   00101111   .   ...   ......   000001 &asr b=%b c=%c f=%f
@@ -149,29 +161,41 @@ ASR   00100   ...   00101111   .   ...   ......   000001 &asr b=%b c=%c f=%f
 &asr_u6 b u f
 ASR_U6   00100   ...   01101111   .   ...   ......   000001 &asr_u6 b=%b u=%u f=%f
 
+&asr_f a b c f
+ASR_F   00101   ...   00000010   .   ...   ......   ...... &asr_f a=%a b=%b c=%c f=%f
+
+&asr_u6_f a b u f
+ASR_U6_F   00101   ...   01000010   .   ...   ......   ...... &asr_u6_f a=%a b=%b u=%u f=%f
+
 &asr_s12 b s f
 ASR_S12   00101   ...   10000010   .   ...   ......   ...... &asr_s12 b=%b s=%s f=%f
 
-&asr_cc b c q
-ASR_CC      00101   ...   11000010   -   ...   ......   0   ..... &asr_cc b=%b c=%c q=%q
+&asr_cc b c q f
+ASR_CC      00101   ...   11000010   .   ...   ......   0   ..... &asr_cc b=%b c=%c q=%q f=%f
 
-&asr_cc_u6 b u q
-ASR_CC_U6   00101   ...   11000010   -   ...   ......   1   ..... &asr_cc_u6 b=%b u=%u q=%q
+&asr_cc_u6 b u q f
+ASR_CC_U6   00101   ...   11000010   .   ...   ......   1   ..... &asr_cc_u6 b=%b u=%u q=%q f=%f
 
-&ror a b c f
-ROR         00101   ...   00000011   .   ...   ......   ...... &ror a=%a b=%b c=%c f=%f
+&ror b c f
+ROR   00100   ...   00101111   .   ...   ......   000011 &ror b=%b c=%c f=%f
 
-&ror_u6 a b u f
-ROR_U6      00101   ...   01000011   .   ...   ......   ...... &ror_u6 a=%a b=%b u=%u f=%f
+&ror_u6 b u f
+ROR_U6   00100   ...   01101111   .   ...   ......   000011  &ror_u6 b=%b u=%u f=%f
+
+&ror_f a b c f
+ROR_F         00101   ...   00000011   .   ...   ......   ...... &ror_f a=%a b=%b c=%c f=%f
+
+&ror_u6_f a b u f
+ROR_U6_F      00101   ...   01000011   .   ...   ......   ...... &ror_u6_f a=%a b=%b u=%u f=%f
 
 &ror_s12 b s f
 ROR_S12     00101   ...   10000011   .   ...   ......   ...... &ror_s12 b=%b s=%s f=%f
 
-&ror_cc b c q
-ROR_CC      00101   ...   11000011   -   ...   ......   0   ..... &ror_cc b=%b c=%c q=%q
+&ror_cc b c q f
+ROR_CC      00101   ...   11000011   .   ...   ......   0   ..... &ror_cc b=%b c=%c q=%q f=%f
 
-&ror_cc_u6 b u q
-ROR_CC_U6   00101   ...   11000011   -   ...   ......   1   ..... &ror_cc_u6 b=%b u=%u q=%q
+&ror_cc_u6 b u q f
+ROR_CC_U6   00101   ...   11000011   .   ...   ......   1   ..... &ror_cc_u6 b=%b u=%u q=%q f=%f
 
 &cmp b c
 CMP   00100   ...   000011001   ...   ......   ------ &cmp b=%b c=%c
