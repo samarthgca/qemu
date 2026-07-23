@@ -1,98 +1,60 @@
-&mov_s_h_s3 h s
 %h 0:2 5:3
 %s 8:3
-MOV_S_H_S3   01110   ...   ...   011   .. &mov_s_h_s3 h=%h s=%s
-
-&mov_s_ne b h
-%b 8:3
-MOV_S_NE   01110   ...   ...   111   .. &mov_s_ne b=%b h=%h
-
-&mov_s_u8 b u 
 %u 0:8
-MOV_S_U8   11011   ...   ........ &mov_s_u8 b=%b u=%u
-
-&mpy_s b c
+%b 8:3
 %c 5:3
-MPY_S   01111   ...   ...   01100 &mpy_s b=%b c=%c
-
-&add_s a b c
 %a 0:3
-ADD_S   01100   ...   ...   11   ... &add_s a=%a b=%b c=%c
-
-&add_s_h b h
-ADD_S_H   01110   ...   ...   000   .. &add_s_h b=%b h=%h
-
-&add_s_s3 s h
-ADD_S_S3   01110   ...   ...   001  .. &add_s_s3 s=%s h=%h
-
-&add_s_u7 b u
-%u7 0:7
-ADD_S_U7   11100   ...   0   ....... &add_s_u7 b=%b u=%u7
-
-&add_s_u3 b c u
 %u3 0:3
-ADD_S_U3   01101   ...   ...   00   ... &add_s_u3 b=%b c=%c u=%u3
-
-&add_s_sp_u7 b u
+%u7 0:7
 %u5 0:5
-ADD_S_SP_U7   11000   ...   100   .....  &add_s_sp_u7 b=%b u=%u5
 
-&add_s_sp_sp_u7 u
-ADD_S_SP_SP_U7   11000000101   .....  &add_s_sp_sp_u7 u=%u5
+@hs 01110   ...   ...   ...   .. h=%h s=%s
+@bh 01110   ...   ...   ...   .. b=%b h=%h
+@b_u8 11011   ...   ........ b=%b u=%u
+@bc  01111   ...   ...   ..... b=%b c=%c
+@abc 01100   ...   ...   ..   ... a=%a b=%b c=%c
+@b_u7 11100   ...   .   ....... b=%b u=%u7
+@bc_u3 01101   ...   ...   ..   ... b=%b c=%c u=%u3
+@b_u5 .....   ...   ...   ..... b=%b u=%u5
+@u5 ...........   ..... u=%u5
+@b  01111   ...   ........ b=%b
 
-&sub_s_u3 b c u
-SUB_S_U3   01101   ...   ...   01   ... &sub_s_u3 b=%b c=%c u=%u3
+MOV_S_H_S3   .....   ...   ...   011   .. @hs
+MOV_S_NE   .....   ...   ...   111   .. @bh
+MOV_S_U8   .....   ...   ........ @b_u8
 
-&sub_s_ne b
-SUB_S_NE   01111   ...   11000000 &sub_s_ne b=%b
+MPY_S   .....   ...   ...   01100 @bc
 
-&sub_s_c c b
-SUB_S_C   01111   ...   ...   00010 &sub_s_c b=%b c=%c
+ADD_S   .....   ...   ...   11   ...  @abc
+ADD_S_H   .....   ...   ...   000   .. @bh
+ADD_S_S3   .....   ...   ...   001  .. @hs
+ADD_S_U7   .....   ...   0   ....... @b_u7
+ADD_S_U3   .....   ...   ...   00   ... @bc_u3
+ADD_S_SP_U7   11000   ...   100   .....  @b_u5
+ADD_S_SP_SP_U7   11000000101   .....  @u5
 
-&sub_s_u5 b u
-SUB_S_U5   10111   ...   011   ..... &sub_s_u5 b=%b u=%u5
+SUB_S_U3   .....   ...   ...   01   ... @bc_u3
+SUB_S_NE   .....   ...   11000000 @b
+SUB_S_C   .....   ...   ...   00010 @bc
+SUB_S_U5   10111   ...   011   ..... @b_u5
+SUB_S_SP_U7   11000001101   ..... @u5
 
-&sub_s_sp_u7 u
-SUB_S_SP_U7   11000001101   ..... &sub_s_sp_u7 u=%u5
+AND_S   .....   ...   ...   00100 @bc
 
-&and_s b c
-AND_S   01111   ...   ...   00100 &and_s b=%b c=%c
+OR_S   .....   ...   ...   00101 @bc
 
-&or_s b c
-OR_S   01111   ...   ...   00101 &or_s b=%b c=%c
+XOR_S   .....   ...   ...   00111 @bc
 
-&xor_s b c
-XOR_S   01111   ...   ...   00111 &xor_s b=%b c=%c
+ASL_S_F   .....   ...   ...   11000 @bc
+ASL_S   .....   ...   ...   11011 @bc
+ASL_S_U3 .....   ...   ...   10   ... @bc_u3
+ASL_S_U5   10111   ...   000   ..... @b_u5
 
-&asl_s_f b c
-ASL_S_F   01111   ...   ...   11000 &asl_s_f b=%b c=%c
+LSR_S_F   .....   ...   ...   11001 @bc
+LSR_S   .....   ...   ...   11101 @bc
+LSR_S_U5   10111   ...   001   ..... @b_u5
 
-&asl_s b c
-ASL_S   01111   ...   ...   11011 &asl_s b=%b c=%c
-
-&asl_s_u3 b c u
-ASL_S_U3 01101   ...   ...   10   ... &asl_s_u3 b=%b c=%c u=%u3
-
-&asl_s_u5 b u
-ASL_S_U5   10111   ...   000   ..... &asl_s_u5 b=%b u=%u5
-
-&lsr_s_f b c
-LSR_S_F   01111   ...   ...   11001 &lsr_s_f b=%b c=%c
-
-&lsr_s b c
-LSR_S   01111   ...   ...   11101 &lsr_s b=%b c=%c
-
-&lsr_s_u5 b u
-LSR_S_U5   10111   ...   001   ..... &lsr_s_u5 b=%b u=%u5
-
-&asr_s_f b c
-ASR_S_F   01111   ...   ...   11010 &asr_s_f b=%b c=%c
-
-&asr_s b c
-ASR_S   01111   ...   ...   11100 &asr_s b=%b c=%c
-
-&asr_s_u3 b c u
-ASR_S_U3   01101   ...   ...   11   ... &asr_s_u3 b=%b c=%c u=%u3
-
-&asr_s_u5 b u
-ASR_S_U5   10111   ...   010   ..... &asr_s_u5 b=%b u=%u5
+ASR_S_F   .....   ...   ...   11010 @bc
+ASR_S   .....   ...   ...   11100 @bc
+ASR_S_U3   .....   ...   ...   11   ... @bc_u3
+ASR_S_U5   10111   ...   010   ..... @b_u5

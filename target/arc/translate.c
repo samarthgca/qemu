@@ -108,19 +108,19 @@ static bool trans_MOV_CC_F_U6(DisasContext *dc, arg_MOV_CC_F_U6 *a)
     return true;
 }
 
-static bool trans_MOV_S_H_S3(DisasContext *dc, arg_mov_s_h_s3 *a)
+static bool trans_MOV_S_H_S3(DisasContext *dc, arg_MOV_S_H_S3 *a)
 {
     tcg_gen_movi_i32(cpu_regs[a->h], a->s);
     return true;
 }
 
-static bool trans_MOV_S_NE(DisasContext *dc, arg_mov_s_ne *a)
+static bool trans_MOV_S_NE(DisasContext *dc, arg_MOV_S_NE *a)
 {
     tcg_gen_movcond_i32(TCG_COND_NE, cpu_regs[arc_reduced_regs[a->b]],cpu_zf, tcg_constant_i32(0),cpu_regs[a->h], cpu_regs[a->b]);
     return true;
 }
 
-static bool trans_MOV_S_U8(DisasContext *dc, arg_mov_s_u8 *a)
+static bool trans_MOV_S_U8(DisasContext *dc, arg_MOV_S_U8 *a)
 {
     tcg_gen_movi_i32(cpu_regs[arc_reduced_regs[a->b]], a->u);
     return true;
@@ -291,43 +291,43 @@ static bool trans_ADD_CC_F_U6(DisasContext *dc, arg_ADD_CC_F_U6 *a)
     return true;
 }
 
-static bool trans_ADD_S(DisasContext *dc, arg_add_s *a)
+static bool trans_ADD_S(DisasContext *dc, arg_ADD_S *a)
 {
     tcg_gen_add_i32(cpu_regs[arc_reduced_regs[a->a]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
     return true;
 }
 
-static bool trans_ADD_S_H(DisasContext *dc, arg_add_s_h *a)
+static bool trans_ADD_S_H(DisasContext *dc, arg_ADD_S_H *a)
 {
     tcg_gen_add_i32(cpu_regs[a->b], cpu_regs[a->b], cpu_regs[a->h]);
     return true;
 }
 
-static bool trans_ADD_S_S3(DisasContext *dc, arg_add_s_s3 *a)
+static bool trans_ADD_S_S3(DisasContext *dc, arg_ADD_S_S3 *a)
 {
     tcg_gen_addi_i32(cpu_regs[a->h], cpu_regs[a->h], a->s);
     return true;
 }
 
-static bool trans_ADD_S_U7(DisasContext *dc, arg_add_s_u7 *a)
+static bool trans_ADD_S_U7(DisasContext *dc, arg_ADD_S_U7 *a)
 {
     tcg_gen_addi_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], a->u);
     return true;
 }
 
-static bool trans_ADD_S_U3(DisasContext *dc, arg_add_s_u3 *a)
+static bool trans_ADD_S_U3(DisasContext *dc, arg_ADD_S_U3 *a)
 {
     tcg_gen_addi_i32(cpu_regs[arc_reduced_regs[a->c]], cpu_regs[arc_reduced_regs[a->b]], a->u);
     return true;
 }
 
-static bool trans_ADD_S_SP_U7(DisasContext *dc, arg_add_s_sp_u7 *a)
+static bool trans_ADD_S_SP_U7(DisasContext *dc, arg_ADD_S_SP_U7 *a)
 {
     tcg_gen_addi_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[SP], a->u << 2);
     return true;
 }
 
-static bool trans_ADD_S_SP_SP_U7(DisasContext *dc, arg_add_s_sp_sp_u7 *a)
+static bool trans_ADD_S_SP_SP_U7(DisasContext *dc, arg_ADD_S_SP_SP_U7 *a)
 {
     tcg_gen_addi_i32(cpu_regs[SP], cpu_regs[SP], a->u << 2);
     return true;
@@ -457,7 +457,7 @@ static bool trans_MPY_CC_F_U6(DisasContext *dc, arg_MPY_CC_F_U6 *a)
     return true;
 }
 
-static bool trans_MPY_S(DisasContext *dc, arg_mpy_s *a)
+static bool trans_MPY_S(DisasContext *dc, arg_MPY_S *a)
 {
     tcg_gen_mul_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
     return true;
@@ -612,31 +612,31 @@ static bool trans_SUB_CC_U6(DisasContext *dc, arg_SUB_CC_U6 *a)
     return true;
 }
 
-static bool trans_SUB_S_U3(DisasContext *dc, arg_sub_s_u3 *a)
+static bool trans_SUB_S_U3(DisasContext *dc, arg_SUB_S_U3 *a)
 {
     tcg_gen_subi_i32(cpu_regs[arc_reduced_regs[a->c]], cpu_regs[arc_reduced_regs[a->b]], a->u);
     return true;
 }
 
-static bool trans_SUB_S_NE(DisasContext *dc, arg_sub_s_ne *a)
+static bool trans_SUB_S_NE(DisasContext *dc, arg_SUB_S_NE *a)
 {
     tcg_gen_sub_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]]);
     return true;
 }
 
-static bool trans_SUB_S_C(DisasContext *dc, arg_sub_s_c *a)
+static bool trans_SUB_S_C(DisasContext *dc, arg_SUB_S_C *a)
 {
     tcg_gen_sub_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
     return true;
 }
 
-static bool trans_SUB_S_U5(DisasContext *dc, arg_sub_s_u5 *a)
+static bool trans_SUB_S_U5(DisasContext *dc, arg_SUB_S_U5 *a)
 {
     tcg_gen_subi_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], a->u);
     return true;
 }
 
-static bool trans_SUB_S_SP_U7(DisasContext *dc, arg_sub_s_sp_u7 *a)
+static bool trans_SUB_S_SP_U7(DisasContext *dc, arg_SUB_S_SP_U7 *a)
 {
     tcg_gen_subi_i32(cpu_regs[SP], cpu_regs[SP], a->u << 2);
     return true;
@@ -724,7 +724,7 @@ static bool trans_AND_CC_U6(DisasContext *dc, arg_AND_CC_U6 *a)
     return true;
 }
 
-static bool trans_AND_S(DisasContext *dc, arg_and_s *a)
+static bool trans_AND_S(DisasContext *dc, arg_AND_S *a)
 {
     tcg_gen_and_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
     return true;
@@ -812,7 +812,7 @@ static bool trans_OR_CC_U6(DisasContext *dc, arg_OR_CC_U6 *a)
     return true;
 }
 
-static bool trans_OR_S(DisasContext *dc, arg_or_s *a)
+static bool trans_OR_S(DisasContext *dc, arg_OR_S *a)
 {
     tcg_gen_or_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
     return true;
@@ -900,7 +900,7 @@ static bool trans_XOR_CC_U6(DisasContext *dc, arg_XOR_CC_U6 *a)
     return true;
 }
 
-static bool trans_XOR_S(DisasContext *dc, arg_xor_s *a)
+static bool trans_XOR_S(DisasContext *dc, arg_XOR_S *a)
 {
     tcg_gen_xor_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
     return true;
@@ -1094,25 +1094,25 @@ static bool trans_ASL_CC_U6(DisasContext *dc, arg_ASL_CC_U6 *a)
     return true;
 }
 
-static bool trans_ASL_S(DisasContext *dc, arg_asl_s *a)
+static bool trans_ASL_S(DisasContext *dc, arg_ASL_S *a)
 {
     tcg_gen_shl_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
     return true;
 }
 
-static bool trans_ASL_S_F(DisasContext *dc, arg_asl_s_f *a)
+static bool trans_ASL_S_F(DisasContext *dc, arg_ASL_S_F *a)
 {
     tcg_gen_shl_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
     return true;
 }
 
-static bool trans_ASL_S_U3(DisasContext *dc, arg_asl_s_u3 *a)
+static bool trans_ASL_S_U3(DisasContext *dc, arg_ASL_S_U3 *a)
 {
     tcg_gen_shli_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], a->u);
     return true;
 }
 
-static bool trans_ASL_S_U5(DisasContext *dc, arg_asl_s_u5 *a)
+static bool trans_ASL_S_U5(DisasContext *dc, arg_ASL_S_U5 *a)
 {
     tcg_gen_shli_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], a->u);
     return true;
@@ -1288,19 +1288,19 @@ static bool trans_LSR_CC_U6(DisasContext *dc, arg_LSR_CC_U6 *a)
     return true;
 }
 
-static bool trans_LSR_S(DisasContext *dc, arg_lsr_s *a)
+static bool trans_LSR_S(DisasContext *dc, arg_LSR_S *a)
 {
     tcg_gen_shr_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
     return true;
 }
 
-static bool trans_LSR_S_F(DisasContext *dc, arg_lsr_s_f *a)
+static bool trans_LSR_S_F(DisasContext *dc, arg_LSR_S_F *a)
 {
     tcg_gen_shr_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
     return true;
 }
 
-static bool trans_LSR_S_U5(DisasContext *dc, arg_lsr_s_u5 *a)
+static bool trans_LSR_S_U5(DisasContext *dc, arg_LSR_S_U5 *a)
 {
     tcg_gen_shri_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], a->u);
     return true;
@@ -1386,7 +1386,7 @@ static bool trans_ASR_S12(DisasContext *dc, arg_ASR_S12 *a)
     return true;
 }
 
-static bool trans_ASR_S_U3(DisasContext *dc, arg_asr_s_u3 *a)
+static bool trans_ASR_S_U3(DisasContext *dc, arg_ASR_S_U3 *a)
 {
     tcg_gen_sari_i32(cpu_regs[arc_reduced_regs[a->c]], cpu_regs[arc_reduced_regs[a->b]], a->u);
     return true;
@@ -1488,19 +1488,19 @@ static bool trans_ASR_CC_U6(DisasContext *dc, arg_ASR_CC_U6 *a)
     return true;
 }
 
-static bool trans_ASR_S(DisasContext *dc, arg_asr_s *a)
+static bool trans_ASR_S(DisasContext *dc, arg_ASR_S *a)
 {
     tcg_gen_sar_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
     return true;
 }
 
-static bool trans_ASR_S_F(DisasContext *dc, arg_asr_s_f *a)
+static bool trans_ASR_S_F(DisasContext *dc, arg_ASR_S_F *a)
 {
     tcg_gen_sar_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
     return true;
 }
 
-static bool trans_ASR_S_U5(DisasContext *dc, arg_asr_s_u5 *a)
+static bool trans_ASR_S_U5(DisasContext *dc, arg_ASR_S_U5 *a)
 {
     tcg_gen_sari_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], a->u);
     return true;
