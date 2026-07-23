@@ -29,13 +29,13 @@ static bool trans_ADD_S12(disassemble_info *info, arg_ADD_S12 *a)
     return true;
 }
 
-static bool trans_ADD_CC_F(DisasContext *info, arg_add_cc_f *a)
+static bool trans_ADD_CC_F(DisasContext *info, arg_ADD_CC_F *a)
 {
     output("add_cc", "r%d, r%d", a->b, a->c);
     return true;
 }
 
-static bool trans_ADD_CC_F_U6(DisasContext *info, arg_add_cc_f_u6 *a)
+static bool trans_ADD_CC_F_U6(DisasContext *info, arg_ADD_CC_F_U6 *a)
 {
     output("add_cc", "r%d, %d", a->b, a->u);
     return true;
@@ -77,25 +77,25 @@ static bool trans_SUB(disassemble_info *info, arg_SUB *a)
     return true;
 }
 
-static bool trans_SUB_u6(disassemble_info *info, arg_sub_u6 *a)
+static bool trans_SUB_u6(disassemble_info *info, arg_SUB_u6 *a)
 {   
     output("sub", "r%d, r%d, %d", a->a, a->b, a->u);
     return true;
 }
 
-static bool trans_SUB_s12(disassemble_info *info, arg_sub_s12 *a)
+static bool trans_SUB_s12(disassemble_info *info, arg_SUB_s12 *a)
 {   
     output("sub", "r%d, r%d, %d", a->b, a->b, a->s);
     return true;
 }
 
-static bool trans_SUB_CC(DisasContext *info, arg_sub_cc *a)
+static bool trans_SUB_CC(DisasContext *info, arg_SUB_CC *a)
 {
     output("sub_cc", "r%d, r%d", a->b, a->c);
     return true;
 }
 
-static bool trans_SUB_CC_U6(DisasContext *info, arg_sub_cc_u6 *a)
+static bool trans_SUB_CC_U6(DisasContext *info, arg_SUB_CC_U6 *a)
 {
     output("sub_cc_u6", "r%d, %d", a->b, a->u);
     return true;
@@ -156,13 +156,13 @@ static bool trans_AND_S12(disassemble_info *info, arg_AND_S12 *a)
     return true;
 }
 
-static bool trans_AND_CC(DisasContext *info, arg_and_cc *a)
+static bool trans_AND_CC(DisasContext *info, arg_AND_CC *a)
 {
     output("and_cc", "r%d, r%d", a->b, a->c);
     return true;
 }
 
-static bool trans_AND_CC_U6(DisasContext *info, arg_and_cc_u6 *a)
+static bool trans_AND_CC_U6(DisasContext *info, arg_AND_CC_U6 *a)
 {
     output("and_cc_u6", "r%d, %d", a->b, a->u);
     return true;
@@ -282,13 +282,13 @@ static bool trans_ASL_S12(DisasContext *info, arg_ASL_S12 *a)
     return true;
 }
 
-static bool trans_ASL_CC(DisasContext *info, arg_asl_cc *a)
+static bool trans_ASL_CC(DisasContext *info, arg_ASL_CC *a)
 {
     output("asl_cc", "r%d, r%d", a->b, a->c);
     return true;
 }
 
-static bool trans_ASL_CC_U6(DisasContext *info, arg_asl_cc_u6 *a)
+static bool trans_ASL_CC_U6(DisasContext *info, arg_ASL_CC_U6 *a)
 {
     output("asl_cc_u6", "r%d, %d", a->b, a->u);
     return true;
@@ -312,13 +312,13 @@ static bool trans_LSR_S12(DisasContext *info, arg_LSR_S12 *a)
     return true;
 }
 
-static bool trans_LSR_CC(DisasContext *info, arg_lsr_cc *a)
+static bool trans_LSR_CC(DisasContext *info, arg_LSR_CC *a)
 {
     output("lsr_cc", "r%d, r%d", a->b, a->c);
     return true;
 }
 
-static bool trans_LSR_CC_U6(DisasContext *info, arg_lsr_cc_u6 *a)
+static bool trans_LSR_CC_U6(DisasContext *info, arg_LSR_CC_U6 *a)
 {
     output("lsr_cc_u6", "r%d, %d", a->b, a->u);
     return true;
@@ -336,19 +336,19 @@ static bool trans_ASR_U6(DisasContext *info, arg_ASR_U6 *a)
     return true;
 }
 
-static bool trans_ASR_S12(disassemble_info *info, arg_asr_s12 *a)
+static bool trans_ASR_S12(disassemble_info *info, arg_ASR_S12 *a)
 {
     output("asr_s12", "r%d, %d", a->b, a->s);
     return true;
 }
 
-static bool trans_ASR_CC(DisasContext *info, arg_asr_cc *a)
+static bool trans_ASR_CC(DisasContext *info, arg_ASR_CC *a)
 {
     output("asr_cc", "r%d, r%d", a->b, a->c);
     return true;
 }
 
-static bool trans_ASR_CC_U6(DisasContext *info, arg_asr_cc_u6 *a)
+static bool trans_ASR_CC_U6(DisasContext *info, arg_ASR_CC_U6 *a)
 {
     output("asr_cc_u6", "r%d, %d", a->b, a->u);
     return true;
@@ -384,13 +384,13 @@ static bool trans_ROR_S12(disassemble_info *info, arg_ROR_S12 *a)
     return true;
 }
 
-static bool trans_ROR_CC(DisasContext *info, arg_ror_cc *a)
+static bool trans_ROR_CC(DisasContext *info, arg_ROR_CC *a)
 {
     output("ror_cc", "r%d, r%d", a->b, a->c);
     return true;
 }
 
-  static bool trans_ROR_CC_U6(DisasContext *info, arg_ror_cc_u6 *a)
+  static bool trans_ROR_CC_U6(DisasContext *info, arg_ROR_CC_U6 *a)
 {
     output("ror_cc_u6", "r%d, %d", a->b, a->u);
     return true;
