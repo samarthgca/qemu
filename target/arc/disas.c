@@ -71,6 +71,65 @@ static bool trans_ADD1_CC_F_U6(DisasContext *info, arg_ADD1_CC_F_U6 *a)
     return true;
 }
 
+static bool trans_ADD2(disassemble_info *info, arg_ADD2 *a)
+{
+    output("add2", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_ADD2_U6(disassemble_info *info, arg_ADD2_U6 *a)
+{
+    output("add2", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_ADD2_S12(disassemble_info *info, arg_ADD2_S12 *a)
+{
+    output("add2", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_ADD2_CC_F(DisasContext *info, arg_ADD2_CC_F *a)
+{
+    output("add2_cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_ADD2_CC_F_U6(DisasContext *info, arg_ADD2_CC_F_U6 *a)
+{
+    output("add2_cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_ADD3(disassemble_info *info, arg_ADD3 *a)
+{
+    output("add3", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_ADD3_U6(disassemble_info *info, arg_ADD3_U6 *a)
+{
+    output("add3", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_ADD3_S12(disassemble_info *info, arg_ADD3_S12 *a)
+{
+    output("add3", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+ }
+
+static bool trans_ADD3_CC_F(DisasContext *info, arg_ADD3_CC_F *a)
+{
+    output("add3_cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_ADD3_CC_F_U6(DisasContext *info, arg_ADD3_CC_F_U6 *a)
+{
+    output("add3_cc", "r%d, %d", a->b, a->u);
+    return true;
+}
 
 
 static bool trans_MOV(disassemble_info *info, arg_MOV *a)
