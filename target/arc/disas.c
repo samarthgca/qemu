@@ -192,6 +192,95 @@ static bool trans_SUB_CC_U6(DisasContext *info, arg_SUB_CC_U6 *a)
     return true;
 }
 
+static bool trans_SUB1(disassemble_info *info, arg_SUB1 *a)
+{
+    output("sub1", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_SUB1_U6(disassemble_info *info, arg_SUB1_U6 *a)
+{
+    output("sub1", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_SUB1_S12(disassemble_info *info, arg_SUB1_S12 *a)
+{
+    output("sub1", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_SUB1_CC(DisasContext *info, arg_SUB1_CC *a)
+{
+    output("sub1_cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_SUB1_CC_U6(DisasContext *info, arg_SUB1_CC_U6 *a)
+{
+    output("sub1_cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_SUB2(disassemble_info *info, arg_SUB2 *a)
+{
+    output("sub2", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_SUB2_U6(disassemble_info *info, arg_SUB2_U6 *a)
+{
+    output("sub2", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_SUB2_S12(disassemble_info *info, arg_SUB2_S12 *a)
+{
+    output("sub2", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_SUB2_CC(DisasContext *info, arg_SUB2_CC *a)
+{
+    output("sub2_cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_SUB2_CC_U6(DisasContext *info, arg_SUB2_CC_U6 *a)
+{
+    output("sub2_cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_SUB3(disassemble_info *info, arg_SUB3 *a)
+{
+    output("sub3", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_SUB3_U6(disassemble_info *info, arg_SUB3_U6 *a)
+{
+    output("sub3", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_SUB3_S12(disassemble_info *info, arg_SUB3_S12 *a)
+{
+    output("sub3", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_SUB3_CC(DisasContext *info, arg_SUB3_CC *a)
+{
+    output("sub3_cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_SUB3_CC_U6(DisasContext *info, arg_SUB3_CC_U6 *a)
+{
+    output("sub3_cc", "r%d, %d", a->b, a->u);
+    return true;
+}
 
 static bool trans_MPY(disassemble_info *info, arg_MPY *a)
 {   
