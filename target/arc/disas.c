@@ -584,7 +584,11 @@ static bool trans_CMP(disassemble_info *info, arg_CMP *a)
     return true;
 }
 
-
+static bool trans_BRANCH(disassemble_info *info, arg_BRANCH *a)
+{
+    output("branch", "%d", a->sb);
+    return true;
+}
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
     bfd_byte buffer[4];

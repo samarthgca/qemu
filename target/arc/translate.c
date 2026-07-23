@@ -14,6 +14,8 @@
 
 typedef struct DisasContext {
     DisasContextBase base;
+    bool has_delay_slot;
+    uint32_t delay_target;
 } DisasContext;
 
 #define HELPER_H "helper.h"
@@ -2715,9 +2717,23 @@ static bool trans_CMP(DisasContext *dc, arg_cmp *a)
     return true;
 }
 
+static bool trans_BRANCH(DisasContext *dc, arg_BRANCH *a)
+{
+    uint32_t target = dc->base.pc_next + (a->sb << 1);
+    if (a->n) {
+        dc->has_delay_slot = true;
+        dc->delay_target = target;
+    } else {
+        tcg_gen_movi_i32(cpu_pc, target);
+        dc->base.is_jmp = DISAS_NORETURN;
+    }
+    return true;
+}
+
 static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
 {
     DisasContext *dc = container_of(dcbase, DisasContext, base);
+    bool had_pending_delay_slot = dc->has_delay_slot;
     uint16_t insn_hi = translator_lduw_end(cpu_env(cs), &dc->base, dc->base.pc_next, MO_LE);
     uint16_t op5 = (insn_hi >> 11) & 0x1F;
 
@@ -2736,14 +2752,17 @@ static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
         }
         dc->base.pc_next += 2;
     }
+    if (had_pending_delay_slot) {
+        tcg_gen_movi_i32(cpu_pc, dc->delay_target);
+        dc->base.is_jmp = DISAS_NORETURN;
+        dc->has_delay_slot = false;
+    }
+
 }
 
 static void arc_tr_init_disas_context(DisasContextBase *db, CPUState *cs) { }
 
-static void arc_tr_tb_start(DisasContextBase *db, CPUState *cs)
-{
-
-}
+static void arc_tr_tb_start(DisasContextBase *db, CPUState *cs) {}
 
 static void arc_tr_insn_start(DisasContextBase *db, CPUState *cs)
 {
@@ -2753,7 +2772,9 @@ static void arc_tr_insn_start(DisasContextBase *db, CPUState *cs)
 static void arc_tr_tb_stop(DisasContextBase *db, CPUState *cs) 
 { 
     DisasContext *dc = container_of(db, DisasContext, base);
-    tcg_gen_movi_i32(cpu_pc, dc->base.pc_next);
+    if (dc->base.is_jmp != DISAS_NORETURN) {
+          tcg_gen_movi_i32(cpu_pc, dc->base.pc_next);
+      }
     tcg_gen_exit_tb(NULL, 0);
 
 }
