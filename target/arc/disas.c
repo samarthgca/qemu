@@ -589,6 +589,37 @@ static bool trans_BRANCH(disassemble_info *info, arg_BRANCH *a)
     output("branch", "%d", a->sb);
     return true;
 }
+
+static bool trans_BRANCH_C(disassemble_info *info, arg_BRANCH_C *a)
+{
+     output("bbit0", "r%d, r%d, %d", a->b, a->c, a->sbc);
+    return true;
+}
+
+static bool trans_BRANCH_C_U6(disassemble_info *info, arg_BRANCH_C_U6 *a)
+{
+    output("bbit0", "r%d, %d, %d", a->b, a->u, a->sbc);
+    return true;
+}
+
+static bool trans_BRANCH_CC(disassemble_info *info, arg_BRANCH_CC *a)
+{
+    output("bcc", "%d, %d", a->q, a->sb);
+    return true;
+}
+
+static bool trans_BRANCH1_C(disassemble_info *info, arg_BRANCH1_C *a)
+{
+     output("bbit1", "r%d, r%d, %d", a->b, a->c, a->sbc);
+    return true;
+}
+
+static bool trans_BRANCH1_C_U6(disassemble_info *info, arg_BRANCH1_C_U6 *a)
+{
+    output("bbit1", "r%d, %d, %d", a->b, a->u, a->sbc);
+    return true;
+}
+
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
     bfd_byte buffer[4];
