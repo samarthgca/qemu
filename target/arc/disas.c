@@ -716,6 +716,17 @@ static bool trans_ASR16_U6(disassemble_info *info, arg_ASR16_U6 *a)
     return true;
 }
 
+static bool trans_ASR8(disassemble_info *info, arg_ASR8 *a)
+{
+    output("asr16", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_ASR8_U6(disassemble_info *info, arg_ASR8_U6 *a)
+{
+    output("asr16", "r%d, %d", a->b, a->u);
+    return true;
+}
 
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
