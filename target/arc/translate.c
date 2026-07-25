@@ -15,7 +15,7 @@
 typedef struct DisasContext {
     DisasContextBase base;
     bool has_delay_slot;
-    uint32_t delay_target;
+    TCGv_i32 delay_target;
 } DisasContext;
 
 #define HELPER_H "helper.h"
@@ -2295,7 +2295,7 @@ static bool trans_BRANCH(DisasContext *dc, arg_BRANCH *a)
     uint32_t target = dc->base.pc_next + (a->sb << 1);
     if (a->n) {
         dc->has_delay_slot = true;
-        dc->delay_target = target;
+        dc->delay_target = tcg_constant_i32(target);
     } else {
         tcg_gen_movi_i32(cpu_pc, target);
         dc->base.is_jmp = DISAS_NORETURN;
@@ -2320,7 +2320,13 @@ static bool trans_BRANCH_C(DisasContext *dc, arg_BRANCH_C *a)
     TCGv_i32 bit = tcg_temp_new_i32();
     tcg_gen_shr_i32(bit, cpu_regs[a->b], bitpos);
     tcg_gen_andi_i32(bit, bit, 1);
-    tcg_gen_movcond_i32(TCG_COND_EQ, cpu_pc, tcg_constant_i32(0), bit, tcg_constant_i32(target), tcg_constant_i32(fallthrough));
+    TCGv_i32 pc_dest = cpu_pc;
+    if (a->n) {
+        dc->has_delay_slot = true;
+        dc->delay_target = tcg_temp_new_i32();
+        pc_dest = dc->delay_target;
+    }
+    tcg_gen_movcond_i32(TCG_COND_EQ, pc_dest, tcg_constant_i32(0), bit, tcg_constant_i32(target), tcg_constant_i32(fallthrough));
     if (!a->n) {
       dc->base.is_jmp = DISAS_NORETURN;
     }
@@ -2336,7 +2342,13 @@ static bool trans_BRANCH_C_U6(DisasContext *dc, arg_BRANCH_C_U6 *a)
     TCGv_i32 bit = tcg_temp_new_i32();
     tcg_gen_shr_i32(bit, cpu_regs[a->b], bitpos);
     tcg_gen_andi_i32(bit, bit, 1);
-    tcg_gen_movcond_i32(TCG_COND_EQ, cpu_pc, tcg_constant_i32(0), bit, tcg_constant_i32(target), tcg_constant_i32(fallthrough));
+    TCGv_i32 pc_dest = cpu_pc;
+    if (a->n) {
+        dc->has_delay_slot = true;
+        dc->delay_target = tcg_temp_new_i32();
+        pc_dest = dc->delay_target;
+    }
+    tcg_gen_movcond_i32(TCG_COND_EQ, pc_dest, tcg_constant_i32(0), bit, tcg_constant_i32(target), tcg_constant_i32(fallthrough));
     if (!a->n) {
       dc->base.is_jmp = DISAS_NORETURN;
     }
@@ -2352,7 +2364,13 @@ static bool trans_BRANCH1_C(DisasContext *dc, arg_BRANCH1_C *a)
     TCGv_i32 bit = tcg_temp_new_i32();
     tcg_gen_shr_i32(bit, cpu_regs[a->b], bitpos);
     tcg_gen_andi_i32(bit, bit, 1);
-    tcg_gen_movcond_i32(TCG_COND_EQ, cpu_pc, tcg_constant_i32(1), bit, tcg_constant_i32(target), tcg_constant_i32(fallthrough));
+    TCGv_i32 pc_dest = cpu_pc;
+    if (a->n) {
+        dc->has_delay_slot = true;
+        dc->delay_target = tcg_temp_new_i32();
+        pc_dest = dc->delay_target;
+    }
+    tcg_gen_movcond_i32(TCG_COND_EQ, pc_dest, tcg_constant_i32(1), bit, tcg_constant_i32(target), tcg_constant_i32(fallthrough));
     if (!a->n) {
       dc->base.is_jmp = DISAS_NORETURN;
     }
@@ -2368,7 +2386,13 @@ static bool trans_BRANCH1_C_U6(DisasContext *dc, arg_BRANCH1_C_U6 *a)
     TCGv_i32 bit = tcg_temp_new_i32();
     tcg_gen_shr_i32(bit, cpu_regs[a->b], bitpos);
     tcg_gen_andi_i32(bit, bit, 1);
-    tcg_gen_movcond_i32(TCG_COND_EQ, cpu_pc, tcg_constant_i32(1), bit, tcg_constant_i32(target), tcg_constant_i32(fallthrough));
+    TCGv_i32 pc_dest = cpu_pc;
+    if (a->n) {
+        dc->has_delay_slot = true;
+        dc->delay_target = tcg_temp_new_i32();
+        pc_dest = dc->delay_target;
+    }
+    tcg_gen_movcond_i32(TCG_COND_EQ, pc_dest, tcg_constant_i32(1), bit, tcg_constant_i32(target), tcg_constant_i32(fallthrough));
     if (!a->n) {
       dc->base.is_jmp = DISAS_NORETURN;
     }
@@ -2380,13 +2404,44 @@ static bool trans_BRANCH_CC(DisasContext *dc, arg_BRANCH_CC *a)
     TCGv_i32 cond = gen_cc_test(a->q);
     uint32_t target = dc->base.pc_next + (a->sb << 1);
     uint32_t fallthrough = dc->base.pc_next + 4;
-    tcg_gen_movcond_i32(TCG_COND_EQ, cpu_pc, cond, tcg_constant_i32(1),
-                         tcg_constant_i32(target), tcg_constant_i32(fallthrough));
+    TCGv_i32 pc_dest = cpu_pc;
+    if (a->n) {
+        dc->has_delay_slot = true;
+        dc->delay_target = tcg_temp_new_i32();
+        pc_dest = dc->delay_target;
+    }
+    tcg_gen_movcond_i32(TCG_COND_EQ, pc_dest, cond, tcg_constant_i32(1), tcg_constant_i32(target), tcg_constant_i32(fallthrough));
     if (!a->n) {
         dc->base.is_jmp = DISAS_NORETURN;
     }
     return true;
 }
+
+static bool trans_NOT(DisasContext *dc, arg_NOT *a)
+{
+    tcg_gen_not_i32(cpu_regs[a->b], cpu_regs[a->c]);
+    if (a->f) {
+        tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
+        tcg_gen_shri_i32(cpu_nf, cpu_regs[a->b], 31);
+    }
+    return true;
+}
+
+static bool trans_NOT_U6(DisasContext *dc, arg_NOT_U6 *a)
+{
+    tcg_gen_not_i32(cpu_regs[a->b], tcg_constant_i32(a->u));
+    if (a->f) {
+        tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
+        tcg_gen_shri_i32(cpu_nf, cpu_regs[a->b], 31);
+    }
+    return true;
+}
+
+static bool trans_NOT_S(DisasContext *dc, arg_NOT_S *a)
+{
+    tcg_gen_not_i32(cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+} 
 
 static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
 {
@@ -2399,7 +2454,7 @@ static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
         uint16_t insn_lo = translator_lduw_end(cpu_env(cs), &dc->base, dc->base.pc_next + 2, MO_LE);
         uint32_t insn = (insn_hi << 16) | insn_lo;
         TCGLabel *label_skip = gen_new_label();
-        if (extract32(insn, 25, 2) == 3) {
+        if (extract32(insn, 27, 5) == 0x04 && extract32(insn, 25, 2) == 3) {
             unsigned _q = extract32(insn, 0, 5);
             TCGv_i32 cond = gen_cc_test(_q);
             tcg_gen_brcondi_i32(TCG_COND_EQ, cond, 0, label_skip);
@@ -2418,7 +2473,7 @@ static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
         dc->base.pc_next += 2;
     }
     if (had_pending_delay_slot) {
-        tcg_gen_movi_i32(cpu_pc, dc->delay_target);
+        tcg_gen_mov_i32(cpu_pc, dc->delay_target);
         dc->base.is_jmp = DISAS_NORETURN;
         dc->has_delay_slot = false;
     }
