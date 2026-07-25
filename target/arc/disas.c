@@ -674,6 +674,49 @@ static bool trans_ABS_U6(disassemble_info *info, arg_ABS_U6 *a)
     return true;
 }
 
+static bool trans_ADC(disassemble_info *info, arg_ADC *a)
+{
+    output("adc", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_ADC_U6(disassemble_info *info, arg_ADC_U6 *a)
+{
+    output("adc", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_ADC_S12(disassemble_info *info, arg_ADC_S12 *a)
+{
+    output("adc", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_ADC_CC(disassemble_info *info, arg_ADC_CC *a)
+{
+    output("adc.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_ADC_CC_U6(disassemble_info *info, arg_ADC_CC_U6 *a)
+{
+    output("adc.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_ASR16(disassemble_info *info, arg_ASR16 *a)
+{
+    output("asr16", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_ASR16_U6(disassemble_info *info, arg_ASR16_U6 *a)
+{
+    output("asr16", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
     bfd_byte buffer[4];
