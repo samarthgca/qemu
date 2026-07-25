@@ -240,7 +240,8 @@ static bool trans_ADD(DisasContext *dc, arg_ADD *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->a], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->a], 31);
         tcg_gen_setcond_i32(TCG_COND_LTU, cpu_cf, cpu_regs[a->a], orig_b);
-        cpu_zf = cpu_vflag_add(orig_b, cpu_regs[a->a], cpu_regs[a->c]);
+        TCGv_i32 vflag = cpu_vflag_add(orig_b, cpu_regs[a->a], cpu_regs[a->c]);
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -254,7 +255,8 @@ static bool trans_ADD_U6(DisasContext *dc, arg_ADD_U6 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->a], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->a], 31);
         tcg_gen_setcond_i32(TCG_COND_LTU, cpu_cf, cpu_regs[a->a], orig_b);
-        cpu_zf = cpu_vflag_add(orig_b, cpu_regs[a->a], tcg_constant_i32(a->u));
+        TCGv_i32 vflag = cpu_vflag_add(orig_b, cpu_regs[a->a], tcg_constant_i32(a->u));
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -268,7 +270,8 @@ static bool trans_ADD_S12(DisasContext *dc, arg_ADD_S12 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->b], 31);
         tcg_gen_setcond_i32(TCG_COND_LTU, cpu_cf, cpu_regs[a->b], orig_b);
-        cpu_zf = cpu_vflag_add(orig_b, cpu_regs[a->a], tcg_constant_i32(a->s));
+        TCGv_i32 vflag = cpu_vflag_add(orig_b, cpu_regs[a->a], tcg_constant_i32(a->s));
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -330,7 +333,8 @@ static bool trans_ADD1(DisasContext *dc, arg_ADD1 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->a], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->a], 31);
         tcg_gen_setcond_i32(TCG_COND_LTU, cpu_cf, cpu_regs[a->a], orig_b);
-        cpu_zf = cpu_vflag_add(orig_b, cpu_regs[a->a], shift_c);
+        TCGv_i32 vflag = cpu_vflag_add(orig_b, cpu_regs[a->a], shift_c);
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -346,7 +350,8 @@ static bool trans_ADD1_U6(DisasContext *dc, arg_ADD1_U6 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->a], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->a], 31);
         tcg_gen_setcond_i32(TCG_COND_LTU, cpu_cf, cpu_regs[a->a], orig_b);
-        cpu_zf = cpu_vflag_add(orig_b, cpu_regs[a->a], shift_u);
+        TCGv_i32 vflag = cpu_vflag_add(orig_b, cpu_regs[a->a], shift_u);
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -362,7 +367,8 @@ static bool trans_ADD1_S12(DisasContext *dc, arg_ADD1_S12 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->b], 31);
         tcg_gen_setcond_i32(TCG_COND_LTU, cpu_cf, cpu_regs[a->b], orig_b);
-        cpu_zf = cpu_vflag_add(orig_b, cpu_regs[a->b], shift_s);
+        TCGv_i32 vflag = cpu_vflag_add(orig_b, cpu_regs[a->b], shift_s);
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -432,7 +438,8 @@ static bool trans_ADD2(DisasContext *dc, arg_ADD2 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->a], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->a], 31);
         tcg_gen_setcond_i32(TCG_COND_LTU, cpu_cf, cpu_regs[a->a], orig_b);
-        cpu_zf = cpu_vflag_add(orig_b, cpu_regs[a->a], shift_c);
+        TCGv_i32 vflag = cpu_vflag_add(orig_b, cpu_regs[a->a], shift_c);
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -448,7 +455,8 @@ static bool trans_ADD2_U6(DisasContext *dc, arg_ADD2_U6 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->a], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->a], 31);
         tcg_gen_setcond_i32(TCG_COND_LTU, cpu_cf, cpu_regs[a->a], orig_b);
-        cpu_zf = cpu_vflag_add(orig_b, cpu_regs[a->a], shift_u);
+        TCGv_i32 vflag = cpu_vflag_add(orig_b, cpu_regs[a->a], shift_u);
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -464,7 +472,8 @@ static bool trans_ADD2_S12(DisasContext *dc, arg_ADD2_S12 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->b], 31);
         tcg_gen_setcond_i32(TCG_COND_LTU, cpu_cf, cpu_regs[a->b], orig_b);
-        cpu_zf = cpu_vflag_add(orig_b, cpu_regs[a->b], shift_s);
+        TCGv_i32 vflag = cpu_vflag_add(orig_b, cpu_regs[a->b], shift_s);
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -538,7 +547,8 @@ static bool trans_ADD3(DisasContext *dc, arg_ADD3 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->a], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->a], 31);
         tcg_gen_setcond_i32(TCG_COND_LTU, cpu_cf, cpu_regs[a->a], orig_b);
-        cpu_zf = cpu_vflag_add(orig_b, cpu_regs[a->a], shift_c);
+        TCGv_i32 vflag = cpu_vflag_add(orig_b, cpu_regs[a->a], shift_c);
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -554,7 +564,8 @@ static bool trans_ADD3_U6(DisasContext *dc, arg_ADD3_U6 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->a], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->a], 31);
         tcg_gen_setcond_i32(TCG_COND_LTU, cpu_cf, cpu_regs[a->a], orig_b);
-        cpu_zf = cpu_vflag_add(orig_b, cpu_regs[a->a], shift_u);
+        TCGv_i32 vflag = cpu_vflag_add(orig_b, cpu_regs[a->a], shift_u);
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -570,7 +581,8 @@ static bool trans_ADD3_S12(DisasContext *dc, arg_ADD3_S12 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->b], 31);
         tcg_gen_setcond_i32(TCG_COND_LTU, cpu_cf, cpu_regs[a->b], orig_b);
-        cpu_zf = cpu_vflag_add(orig_b, cpu_regs[a->b], shift_s);
+        TCGv_i32 vflag = cpu_vflag_add(orig_b, cpu_regs[a->b], shift_s);
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -807,7 +819,8 @@ static bool trans_SUB(DisasContext *dc, arg_SUB *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->a], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->a], 31);
         tcg_gen_setcond_i32(TCG_COND_GEU, cpu_cf, cpu_regs[a->a], orig_b);
-        cpu_zf = cpu_vflag_sub(orig_b, cpu_regs[a->a], cpu_regs[a->c]);
+        TCGv_i32 vflag = cpu_vflag_sub(orig_b, cpu_regs[a->a], cpu_regs[a->c]);
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -821,7 +834,8 @@ static bool trans_SUB_u6(DisasContext *dc, arg_SUB_u6 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->a], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->a], 31);
         tcg_gen_setcond_i32(TCG_COND_GEU, cpu_cf, cpu_regs[a->a], orig_b);
-        cpu_zf = cpu_vflag_sub(orig_b, cpu_regs[a->a], tcg_constant_i32(a->u));
+        TCGv_i32 vflag = cpu_vflag_sub(orig_b, cpu_regs[a->a], tcg_constant_i32(a->u));
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -835,7 +849,8 @@ static bool trans_SUB_s12(DisasContext *dc, arg_SUB_s12 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->b], 31);
         tcg_gen_setcondi_i32(TCG_COND_GEU, cpu_cf, orig_b, a->s);
-        cpu_zf = cpu_vflag_sub(orig_b, cpu_regs[a->b], tcg_constant_i32(a->s));
+        TCGv_i32 vflag = cpu_vflag_sub(orig_b, cpu_regs[a->b], tcg_constant_i32(a->s));
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -902,7 +917,8 @@ static bool trans_SUB1(DisasContext *dc, arg_SUB1 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->a], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->a], 31);
         tcg_gen_setcond_i32(TCG_COND_GEU, cpu_cf, orig_b, shift_c);
-        cpu_zf = cpu_vflag_sub(orig_b, cpu_regs[a->a], shift_c);
+        TCGv_i32 vflag = cpu_vflag_sub(orig_b, cpu_regs[a->a], shift_c);
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -918,7 +934,8 @@ static bool trans_SUB1_U6(DisasContext *dc, arg_SUB1_U6 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->a], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->a], 31);
         tcg_gen_setcond_i32(TCG_COND_GEU, cpu_cf, orig_b, shift_u);
-        cpu_zf = cpu_vflag_sub(orig_b, cpu_regs[a->a], shift_u);
+        TCGv_i32 vflag = cpu_vflag_sub(orig_b, cpu_regs[a->a], shift_u);
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -934,7 +951,8 @@ static bool trans_SUB1_S12(DisasContext *dc, arg_SUB1_S12 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->b], 31);
         tcg_gen_setcond_i32(TCG_COND_GEU, cpu_cf, orig_b, shift_s);
-        cpu_zf = cpu_vflag_sub(orig_b, cpu_regs[a->b], shift_s);
+        TCGv_i32 vflag = cpu_vflag_sub(orig_b, cpu_regs[a->b], shift_s);
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -1004,7 +1022,8 @@ static bool trans_SUB2(DisasContext *dc, arg_SUB2 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->a], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->a], 31);
         tcg_gen_setcond_i32(TCG_COND_GEU, cpu_cf, orig_b, shift_c);
-        cpu_zf = cpu_vflag_sub(orig_b, cpu_regs[a->a], shift_c);
+        TCGv_i32 vflag = cpu_vflag_sub(orig_b, cpu_regs[a->a], shift_c);
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -1020,7 +1039,8 @@ static bool trans_SUB2_U6(DisasContext *dc, arg_SUB2_U6 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->a], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->a], 31);
         tcg_gen_setcond_i32(TCG_COND_GEU, cpu_cf, orig_b, shift_u);
-        cpu_zf = cpu_vflag_sub(orig_b, cpu_regs[a->a], shift_u);
+        TCGv_i32 vflag = cpu_vflag_sub(orig_b, cpu_regs[a->a], shift_u);
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -1036,7 +1056,8 @@ static bool trans_SUB2_S12(DisasContext *dc, arg_SUB2_S12 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->b], 31);
         tcg_gen_setcond_i32(TCG_COND_GEU, cpu_cf, orig_b, shift_s);
-        cpu_zf = cpu_vflag_sub(orig_b, cpu_regs[a->b], shift_s);
+        TCGv_i32 vflag = cpu_vflag_sub(orig_b, cpu_regs[a->b], shift_s);
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -1106,7 +1127,8 @@ static bool trans_SUB3(DisasContext *dc, arg_SUB3 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->a], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->a], 31);
         tcg_gen_setcond_i32(TCG_COND_GEU, cpu_cf, orig_b, shift_c);
-        cpu_zf = cpu_vflag_sub(orig_b, cpu_regs[a->a], shift_c);
+        TCGv_i32 vflag = cpu_vflag_sub(orig_b, cpu_regs[a->a], shift_c);
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -1122,7 +1144,8 @@ static bool trans_SUB3_U6(DisasContext *dc, arg_SUB3_U6 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->a], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->a], 31);
         tcg_gen_setcond_i32(TCG_COND_GEU, cpu_cf, orig_b, shift_u);
-        cpu_zf = cpu_vflag_sub(orig_b, cpu_regs[a->a], shift_u);
+        TCGv_i32 vflag = cpu_vflag_sub(orig_b, cpu_regs[a->a], shift_u);
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
@@ -1138,7 +1161,8 @@ static bool trans_SUB3_S12(DisasContext *dc, arg_SUB3_S12 *a)
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
         tcg_gen_shri_i32(cpu_nf, cpu_regs[a->b], 31);
         tcg_gen_setcond_i32(TCG_COND_GEU, cpu_cf, orig_b, shift_s);
-        cpu_zf = cpu_vflag_sub(orig_b, cpu_regs[a->b], shift_s);
+        TCGv_i32 vflag = cpu_vflag_sub(orig_b, cpu_regs[a->b], shift_s);
+        tcg_gen_mov_i32(cpu_vf, vflag);
     }
     return true;
 }
