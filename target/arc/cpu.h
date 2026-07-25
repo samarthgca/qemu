@@ -21,6 +21,21 @@ typedef struct CPUArchState {
     uint32_t nf;
     uint32_t cf;
     uint32_t vf;
+    uint32_t identity;
+    uint32_t status32;
+    uint32_t bta;
+    uint32_t ecr;
+    uint32_t int_vector_base;
+    uint32_t aux_user_sp;
+    uint32_t eret;
+    uint32_t erbta;
+    uint32_t erstatus;
+    uint32_t efa;
+    uint32_t bcr_ver;
+    uint32_t bta_link_build;
+    uint32_t vecbase_ac_build;
+    uint32_t rf_build;
+    uint32_t isa_config;
 }CPUArcState;
 
 struct ArchCPU {

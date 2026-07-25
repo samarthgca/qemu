@@ -632,6 +632,37 @@ static bool trans_NOT_U6(disassemble_info *info, arg_NOT_U6 *a)
     return true;
 }
 
+static bool trans_AEX(disassemble_info *info, arg_AEX *a)
+{
+    output("aex", "r%d, [r%d]", a->b, a->c);
+    return true;
+}
+
+static bool trans_AEX_U6(disassemble_info *info, arg_AEX_U6 *a)
+{
+    output("aex", "r%d, [%d]", a->b, a->u);
+    return true;
+}
+
+static bool trans_AEX_S12(disassemble_info *info, arg_AEX_S12 *a)
+{
+    output("aex", "r%d, [%d]", a->b, a->s);
+    return true;
+}
+
+static bool trans_AEX_CC(disassemble_info *info, arg_AEX_CC *a)
+{
+    output("aex.cc", "r%d, [r%d]", a->b, a->c);
+    return true;
+}
+
+static bool trans_AEX_CC_U6(disassemble_info *info, arg_AEX_CC_U6 *a)
+{
+    output("aex.cc", "r%d, [%d]", a->b, a->u);
+    return true;
+}
+
+
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
     bfd_byte buffer[4];

@@ -389,7 +389,7 @@ static bool trans_ADD1_CC_F(DisasContext *dc, arg_ADD_CC_F *a)
             tcg_gen_setcondi_i32(TCG_COND_EQ, new_z, tmp, 0);
             tcg_gen_shri_i32(new_n, tmp, 31);
             tcg_gen_setcond_i32(TCG_COND_LTU, new_c, tmp, cpu_regs[a->b]);
-            new_v = cpu_vflag_add(cpu_regs[a->b], temp, shift_c);
+            new_v = cpu_vflag_add(cpu_regs[a->b], tmp, shift_c);
             tcg_gen_movcond_i32(TCG_COND_EQ, cpu_zf, cond, tcg_constant_i32(1), new_z, cpu_zf);
             tcg_gen_movcond_i32(TCG_COND_EQ, cpu_nf, cond, tcg_constant_i32(1), new_n, cpu_nf);
             tcg_gen_movcond_i32(TCG_COND_EQ, cpu_cf, cond, tcg_constant_i32(1), new_c, cpu_cf);
@@ -416,7 +416,7 @@ static bool trans_ADD1_CC_F_U6(DisasContext *dc, arg_ADD1_CC_F_U6 *a)
             tcg_gen_setcondi_i32(TCG_COND_EQ, new_z, tmp, 0);
             tcg_gen_shri_i32(new_n, tmp, 31);
             tcg_gen_setcond_i32(TCG_COND_LTU, new_c, tmp, cpu_regs[a->b]);
-            new_v = cpu_vflag_add(cpu_regs[a->b], temp, shift_u);
+            new_v = cpu_vflag_add(cpu_regs[a->b], tmp, shift_u);
             tcg_gen_movcond_i32(TCG_COND_EQ, cpu_zf, cond, tcg_constant_i32(1), new_z, cpu_zf);
             tcg_gen_movcond_i32(TCG_COND_EQ, cpu_nf, cond, tcg_constant_i32(1), new_n, cpu_nf);
             tcg_gen_movcond_i32(TCG_COND_EQ, cpu_cf, cond, tcg_constant_i32(1), new_c, cpu_cf);
@@ -494,9 +494,7 @@ static bool trans_ADD2_CC_F(DisasContext *dc, arg_ADD2_CC_F *a)
             tcg_gen_setcondi_i32(TCG_COND_EQ, new_z, tmp, 0);
             tcg_gen_shri_i32(new_n, tmp, 31);
             tcg_gen_setcond_i32(TCG_COND_LTU, new_c, tmp, cpu_regs[a->b]);
-            TCGv_i32 t0 = tcg_temp_new_i32();
-            TCGv_i32 t1 = tcg_temp_new_i32();
-            new_v = cpu_vflag_add(cpu_regs[a->b], temp, shift_c);
+            new_v = cpu_vflag_add(cpu_regs[a->b], tmp, shift_c);
             tcg_gen_movcond_i32(TCG_COND_EQ, cpu_zf, cond, tcg_constant_i32(1), new_z, cpu_zf);
             tcg_gen_movcond_i32(TCG_COND_EQ, cpu_nf, cond, tcg_constant_i32(1), new_n, cpu_nf);
             tcg_gen_movcond_i32(TCG_COND_EQ, cpu_cf, cond, tcg_constant_i32(1), new_c, cpu_cf);
@@ -523,9 +521,7 @@ static bool trans_ADD2_CC_F_U6(DisasContext *dc, arg_ADD2_CC_F_U6 *a)
             tcg_gen_setcondi_i32(TCG_COND_EQ, new_z, tmp, 0);
             tcg_gen_shri_i32(new_n, tmp, 31);
             tcg_gen_setcond_i32(TCG_COND_LTU, new_c, tmp, cpu_regs[a->b]);
-            TCGv_i32 t0 = tcg_temp_new_i32();
-            TCGv_i32 t1 = tcg_temp_new_i32();
-            new_v = cpu_vflag_add(cpu_regs[a->b], temp, shift_u);
+            new_v = cpu_vflag_add(cpu_regs[a->b], tmp, shift_u);
             tcg_gen_movcond_i32(TCG_COND_EQ, cpu_zf, cond, tcg_constant_i32(1), new_z, cpu_zf);
             tcg_gen_movcond_i32(TCG_COND_EQ, cpu_nf, cond, tcg_constant_i32(1), new_n, cpu_nf);
             tcg_gen_movcond_i32(TCG_COND_EQ, cpu_cf, cond, tcg_constant_i32(1), new_c, cpu_cf);
@@ -2276,6 +2272,46 @@ static bool trans_NOT_S(DisasContext *dc, arg_NOT_S *a)
     return true;
 } 
 
+static bool trans_AEX(DisasContext *dc, arg_AEX *a)
+{
+    TCGv_i32 result = tcg_temp_new_i32();
+    gen_helper_aex(result, tcg_env, cpu_regs[a->c], cpu_regs[a->b]);
+    tcg_gen_mov_i32(cpu_regs[a->b], result);
+    return true;
+}
+
+static bool trans_AEX_U6(DisasContext *dc, arg_AEX_U6 *a)
+{
+    TCGv_i32 result = tcg_temp_new_i32();
+    gen_helper_aex(result, tcg_env, tcg_constant_i32(a->u), cpu_regs[a->b]);
+    tcg_gen_mov_i32(cpu_regs[a->b], result);
+    return true;
+}
+
+static bool trans_AEX_S12(DisasContext *dc, arg_AEX_S12 *a)
+{
+    TCGv_i32 result = tcg_temp_new_i32();
+    gen_helper_aex(result, tcg_env, tcg_constant_i32(a->s), cpu_regs[a->b]);
+    tcg_gen_mov_i32(cpu_regs[a->b], result);
+    return true;
+}
+
+static bool trans_AEX_CC(DisasContext *dc, arg_AEX_CC *a)
+{
+    TCGv_i32 result = tcg_temp_new_i32();
+    gen_helper_aex(result, tcg_env, cpu_regs[a->c], cpu_regs[a->b]);
+    tcg_gen_mov_i32(cpu_regs[a->b], result);
+    return true;
+}
+
+static bool trans_AEX_CC_U6(DisasContext *dc, arg_AEX_CC_U6 *a)
+{
+    TCGv_i32 result = tcg_temp_new_i32();
+    gen_helper_aex(result, tcg_env, tcg_constant_i32(a->u), cpu_regs[a->b]);
+    tcg_gen_mov_i32(cpu_regs[a->b], result);
+    return true;
+}
+
 static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
 {
     DisasContext *dc = container_of(dcbase, DisasContext, base);
@@ -2287,7 +2323,7 @@ static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
         uint16_t insn_lo = translator_lduw_end(cpu_env(cs), &dc->base, dc->base.pc_next + 2, MO_LE);
         uint32_t insn = (insn_hi << 16) | insn_lo;
         TCGLabel *label_skip = gen_new_label();
-        if (extract32(insn, 27, 5) == 0x04 && extract32(insn, 25, 2) == 3) {
+        if (extract32(insn, 27, 5) == 0x04 && extract32(insn, 22, 2) == 3) {
             unsigned _q = extract32(insn, 0, 5);
             TCGv_i32 cond = gen_cc_test(_q);
             tcg_gen_brcondi_i32(TCG_COND_EQ, cond, 0, label_skip);
