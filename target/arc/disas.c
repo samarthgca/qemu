@@ -662,6 +662,17 @@ static bool trans_AEX_CC_U6(disassemble_info *info, arg_AEX_CC_U6 *a)
     return true;
 }
 
+static bool trans_ABS(disassemble_info *info, arg_ABS *a)
+{
+    output("abs", "r%d, [r%d]", a->b, a->c);
+    return true;
+}
+
+static bool trans_ABS_U6(disassemble_info *info, arg_ABS_U6 *a)
+{
+    output("abs", "r%d, [%d]", a->b, a->u);
+    return true;
+}
 
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
