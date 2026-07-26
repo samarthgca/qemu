@@ -789,6 +789,19 @@ static bool trans_LSL8_U6(disassemble_info *info, arg_LSL8_U6 *a)
     return true;
 }
 
+static bool trans_ROL(disassemble_info *info, arg_ROL *a)
+{
+    output("rol8", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_ROL_U6(disassemble_info *info, arg_ROL_U6 *a)
+{
+    output("rol8", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
     bfd_byte buffer[4];
