@@ -2572,6 +2572,25 @@ static bool trans_LSL8_U6(DisasContext *dc, arg_LSL8_U6 *a)
     return true;
 }
 
+static bool trans_ROR8(DisasContext *dc, arg_ROR8 *a)
+{
+    tcg_gen_rotri_i32(cpu_regs[a->b], cpu_regs[a->c], 8);
+    if (a->f) {
+        tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
+        tcg_gen_shri_i32(cpu_nf, cpu_regs[a->b], 31);
+    }
+    return true;
+}
+
+static bool trans_ROR8_U6(DisasContext *dc, arg_ROR8_U6 *a)
+{
+    tcg_gen_rotri_i32(cpu_regs[a->b], tcg_constant_i32(a->u), 8);
+    if (a->f) {
+        tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
+        tcg_gen_shri_i32(cpu_nf, cpu_regs[a->b], 31);
+    }
+    return true;
+}
 
 static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
 {

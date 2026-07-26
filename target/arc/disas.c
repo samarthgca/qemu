@@ -764,6 +764,18 @@ static bool trans_LSL16_U6(disassemble_info *info, arg_LSL16_U6 *a)
     return true;
 }
 
+static bool trans_ROR8(disassemble_info *info, arg_ROR8 *a)
+{
+    output("ror8", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_ROR8_U6(disassemble_info *info, arg_ROR8_U6 *a)
+{
+    output("ror8", "r%d, %d", a->b, a->u);
+    return true;
+}
+
 
 static bool trans_LSL8(disassemble_info *info, arg_LSL8 *a)
 {
