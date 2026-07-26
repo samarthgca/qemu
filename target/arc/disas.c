@@ -752,6 +752,31 @@ static bool trans_LSR8_U6(disassemble_info *info, arg_LSR8_U6 *a)
     return true;
 }
 
+static bool trans_LSL16(disassemble_info *info, arg_LSL16 *a)
+{
+    output("lsl16", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_LSL16_U6(disassemble_info *info, arg_LSL16_U6 *a)
+{
+    output("lsl16", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+
+static bool trans_LSL8(disassemble_info *info, arg_LSL8 *a)
+{
+    output("lsl8", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_LSL8_U6(disassemble_info *info, arg_LSL8_U6 *a)
+{
+    output("lsl8", "r%d, %d", a->b, a->u);
+    return true;
+}
+
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
     bfd_byte buffer[4];

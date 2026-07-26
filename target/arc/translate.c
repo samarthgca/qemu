@@ -2531,6 +2531,48 @@ static bool trans_LSR8_U6(DisasContext *dc, arg_LSR8_U6 *a)
     return true;
 }
 
+static bool trans_LSL16(DisasContext *dc, arg_LSL16 *a)
+{
+    tcg_gen_shli_i32(cpu_regs[a->b], cpu_regs[a->c], 16);
+    if (a->f) {
+        tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
+        tcg_gen_shri_i32(cpu_nf, cpu_regs[a->b], 31);
+    }
+    return true;
+}
+
+static bool trans_LSL16_U6(DisasContext *dc, arg_LSL16_U6 *a)
+{
+    tcg_gen_shli_i32(cpu_regs[a->b], tcg_constant_i32(a->u), 16);
+    if (a->f) {
+        tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
+        tcg_gen_shri_i32(cpu_nf, cpu_regs[a->b], 31);
+    }
+    return true;
+}
+
+
+static bool trans_LSL8(DisasContext *dc, arg_LSL8 *a)
+{
+    tcg_gen_shli_i32(cpu_regs[a->b], cpu_regs[a->c], 8);
+    if (a->f) {
+        tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
+        tcg_gen_shri_i32(cpu_nf, cpu_regs[a->b], 31);
+    }
+    return true;
+}
+
+static bool trans_LSL8_U6(DisasContext *dc, arg_LSL8_U6 *a)
+{
+    tcg_gen_shli_i32(cpu_regs[a->b], tcg_constant_i32(a->u), 8);
+    if (a->f) {
+        tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
+        tcg_gen_shri_i32(cpu_nf, cpu_regs[a->b], 31);
+    }
+    return true;
+}
+
+
 static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
 {
     DisasContext *dc = container_of(dcbase, DisasContext, base);
