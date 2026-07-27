@@ -158,6 +158,16 @@ ROR8_U6  .....   ...   01101111   .   ...   ......   010001 @bc16_u6
 
 &cmp b c
 CMP   00100   ...   000011001   ...   ......   ------ &cmp b=%b c=%c
+&rcmp a b c
+RCMP   00100   ...   000011011   ...   ......   ...... &rcmp a=%a b=%b c=%c
+&rcmp_u6 a b u
+RCMP_U6   00100   ...   010011011   ...   ......   ...... &rcmp_u6 a=%a b=%b u=%u
+&rcmp_s12 a b s
+RCMP_S12   00100   ...   100011011   ...   ......   ...... &rcmp_s12 a=%a b=%b s=%s
+&rcmp_cc b c q
+RCMP_CC   00100   ...   110011011   ...   ......   0   ..... &rcmp_cc b=%b c=%c q=%q
+&rcmp_cc_u6 b u q
+RCMP_CC_U6   00100   ...   110011011   ...   ......   1   ..... &rcmp_cc_u6 b=%b u=%u q=%q
 
 BRANCH .....   ..........   1   ..........   .   .   .... @branch
 BRANCH_C .....   ...   .......   1   .   ...   ......   .   0   .   110 @branch_c

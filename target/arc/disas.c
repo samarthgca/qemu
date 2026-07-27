@@ -909,6 +909,35 @@ static bool trans_EXTH_U6(disassemble_info *info, arg_EXTH_U6 *a)
     return true;
 }
 
+static bool trans_RCMP(disassemble_info *info, arg_RCMP *a)
+{
+    output("rcmp", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_RCMP_U6(disassemble_info *info, arg_RCMP_U6 *a)
+{
+    output("rcmp", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_RCMP_S12(disassemble_info *info, arg_RCMP_S12 *a)
+{
+    output("rcmp", "r%d, %d", a->b, a->s);
+    return true;
+}
+
+static bool trans_RCMP_CC(disassemble_info *info, arg_RCMP_CC *a)
+{
+    output("rcmp.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_RCMP_CC_U6(disassemble_info *info, arg_RCMP_CC_U6 *a)
+{
+    output("rcmp.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
 
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
