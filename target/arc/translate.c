@@ -2729,6 +2729,32 @@ static bool trans_EXTB_S(DisasContext *dc, arg_EXTB_S *a)
     return true;
 }
 
+static bool trans_EXTH(DisasContext *dc, arg_EXTH *a)
+{
+    tcg_gen_ext16u_i32(cpu_regs[a->b], cpu_regs[a->c]);
+    if (a->f) {
+        tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
+        tcg_gen_mov_i32(cpu_nf, tcg_constant_i32(0));
+    }
+    return true;
+}
+
+static bool trans_EXTH_U6(DisasContext *dc, arg_EXTH_U6 *a)
+{
+    tcg_gen_ext16u_i32(cpu_regs[a->b], tcg_constant_i32(a->u));
+    if (a->f) {
+        tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
+        tcg_gen_mov_i32(cpu_nf, tcg_constant_i32(0));
+    }
+    return true;
+}
+
+static bool trans_EXTH_S(DisasContext *dc, arg_EXTH_S *a)
+{
+    tcg_gen_ext16u_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
+    return true;
+}
+
 static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
 {
     DisasContext *dc = container_of(dcbase, DisasContext, base);
