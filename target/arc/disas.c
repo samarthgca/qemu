@@ -873,6 +873,18 @@ static bool trans_SEXB_U6(disassemble_info *info, arg_SEXB_U6 *a)
     return true;
 }
 
+static bool trans_SEXH(disassemble_info *info, arg_SEXH *a)
+{
+    output("sexh", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_SEXH_U6(disassemble_info *info, arg_SEXH_U6 *a)
+{
+    output("sexh", "r%d, %d", a->b, a->u);
+    return true;
+}
+
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
     bfd_byte buffer[4];

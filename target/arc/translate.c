@@ -2679,6 +2679,30 @@ static bool trans_SEXB_S(DisasContext *dc, arg_SEXB_S *a)
     return true;
 }
 
+static bool trans_SEXH(DisasContext *dc, arg_SEXH *a)
+{
+    tcg_gen_ext16s_i32(cpu_regs[a->b], cpu_regs[a->c]);
+    if (a->f) {
+        flag(0b001010, cpu_regs[a->b], tcg_constant_i32(0), tcg_constant_i32(0));
+    }
+    return true;
+}
+
+static bool trans_SEXH_U6(DisasContext *dc, arg_SEXH_U6 *a)
+{
+    tcg_gen_ext16s_i32(cpu_regs[a->b], tcg_constant_i32(a->u));
+    if (a->f) {
+        flag(0b001010, cpu_regs[a->b], tcg_constant_i32(0), tcg_constant_i32(0));
+    }
+    return true;
+}
+
+static bool trans_SEXH_S(DisasContext *dc, arg_SEXH_S *a)
+{
+    tcg_gen_ext16s_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
+    return true;
+}
+
 static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
 {
     DisasContext *dc = container_of(dcbase, DisasContext, base);
