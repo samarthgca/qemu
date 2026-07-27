@@ -801,6 +801,35 @@ static bool trans_ROL_U6(disassemble_info *info, arg_ROL_U6 *a)
     return true;
 }
 
+static bool trans_MAX(disassemble_info *info, arg_MAX *a)
+{
+    output("max", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_MAX_U6(disassemble_info *info, arg_MAX_U6 *a)
+{
+    output("max", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_MAX_S12(disassemble_info *info, arg_MAX_S12 *a)
+{
+    output("max", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_MAX_CC(disassemble_info *info, arg_MAX_CC *a)
+{
+    output("max.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_MAX_CC_U6(disassemble_info *info, arg_MAX_CC_U6 *a)
+{
+    output("max.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
 
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
