@@ -885,6 +885,18 @@ static bool trans_SEXH_U6(disassemble_info *info, arg_SEXH_U6 *a)
     return true;
 }
 
+static bool trans_EXTB(disassemble_info *info, arg_EXTB *a)
+{
+    output("extb", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_EXTB_U6(disassemble_info *info, arg_EXTB_U6 *a)
+{
+    output("extb", "r%d, %d", a->b, a->u);
+    return true;
+}
+
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
     bfd_byte buffer[4];
