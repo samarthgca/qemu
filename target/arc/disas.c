@@ -831,6 +831,38 @@ static bool trans_MAX_CC_U6(disassemble_info *info, arg_MAX_CC_U6 *a)
     return true;
 }
 
+static bool trans_MIN(disassemble_info *info, arg_MIN *a)
+{
+    output("min", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_MIN_U6(disassemble_info *info, arg_MIN_U6 *a)
+{
+    output("min", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_MIN_S12(disassemble_info *info, arg_MIN_S12 *a)
+{
+    output("min", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_MIN_CC(disassemble_info *info, arg_MIN_CC *a)
+{
+    output("min.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_MIN_CC_U6(disassemble_info *info, arg_MIN_CC_U6 *a)
+{
+    output("min.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+
+
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
     bfd_byte buffer[4];
