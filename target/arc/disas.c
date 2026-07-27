@@ -861,7 +861,17 @@ static bool trans_MIN_CC_U6(disassemble_info *info, arg_MIN_CC_U6 *a)
     return true;
 }
 
+static bool trans_SEXB(disassemble_info *info, arg_SEXB *a)
+{
+    output("sexb", "r%d, r%d", a->b, a->c);
+    return true;
+}
 
+static bool trans_SEXB_U6(disassemble_info *info, arg_SEXB_U6 *a)
+{
+    output("sexb", "r%d, %d", a->b, a->u);
+    return true;
+}
 
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {

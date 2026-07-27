@@ -2567,7 +2567,7 @@ static bool trans_MAX_CC_U6(DisasContext *dc, arg_MAX_CC_U6 *a)
         tcg_gen_subi_i32(alu, orig_b, a->u);
         tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, alu, 0);
         tcg_gen_shri_i32(cpu_nf, alu, 31);
-        tcg_gen_setcondi_i32(TCG_COND_GEU, cpu_cf, orig_b, a->u);
+        tcg_gen_setcondi_i32(TCG_COND_LEU, cpu_cf, orig_b, a->u);
         TCGv_i32 vflag = cpu_vflag_sub(orig_b, alu, tcg_constant_i32(a->u));
         tcg_gen_mov_i32(cpu_vf, vflag);
     }
@@ -2652,6 +2652,30 @@ static bool trans_MIN_CC_U6(DisasContext *dc, arg_MIN_CC_U6 *a)
         TCGv_i32 vflag = cpu_vflag_sub(orig_b, alu, tcg_constant_i32(a->u));
         tcg_gen_mov_i32(cpu_vf, vflag);
     }
+    return true;
+}
+
+static bool trans_SEXB(DisasContext *dc, arg_SEXB *a)
+{
+    tcg_gen_ext8s_i32(cpu_regs[a->b], cpu_regs[a->c]);
+    if (a->f) {
+        flag(0b001010, cpu_regs[a->b], tcg_constant_i32(0), tcg_constant_i32(0));
+    }
+    return true;
+}
+
+static bool trans_SEXB_U6(DisasContext *dc, arg_SEXB_U6 *a)
+{
+    tcg_gen_ext8s_i32(cpu_regs[a->b], tcg_constant_i32(a->u));
+    if (a->f) {
+        flag(0b001010, cpu_regs[a->b], tcg_constant_i32(0), tcg_constant_i32(0));
+    }
+    return true;
+}
+
+static bool trans_SEXB_S(DisasContext *dc, arg_SEXB_S *a)
+{
+    tcg_gen_ext8s_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
     return true;
 }
 
