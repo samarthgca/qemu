@@ -3577,6 +3577,46 @@ static bool trans_NEG_S(DisasContext *dc, arg_NEG_S *a)
     return true;
 }
 
+static bool trans_SWAP(DisasContext *dc, arg_SWAP *a)
+{
+    tcg_gen_rotli_i32(cpu_regs[a->b], cpu_regs[a->c], 16);
+    if (a->f) {
+        tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
+        tcg_gen_shri_i32(cpu_nf, cpu_regs[a->b], 31);
+    }
+    return true;
+}
+
+static bool trans_SWAP_U6(DisasContext *dc, arg_SWAP_U6 *a)
+{
+    tcg_gen_rotli_i32(cpu_regs[a->b], tcg_constant_i32(a->u), 16);
+    if (a->f) {
+        tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
+        tcg_gen_shri_i32(cpu_nf, cpu_regs[a->b], 31);
+    }
+    return true;
+}
+
+static bool trans_SWAPE(DisasContext *dc, arg_SWAPE *a)
+{
+    tcg_gen_bswap32_i32(cpu_regs[a->b], cpu_regs[a->c]);
+    if (a->f) {
+        tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
+        tcg_gen_shri_i32(cpu_nf, cpu_regs[a->b], 31);
+    }
+    return true;
+}
+
+static bool trans_SWAPE_U6(DisasContext *dc, arg_SWAPE_U6 *a)
+{
+    tcg_gen_bswap32_i32(cpu_regs[a->b], tcg_constant_i32(a->u));
+    if (a->f) {
+        tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, cpu_regs[a->b], 0);
+        tcg_gen_shri_i32(cpu_nf, cpu_regs[a->b], 31);
+    }
+    return true;
+}
+
 static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
 {
     DisasContext *dc = container_of(dcbase, DisasContext, base);

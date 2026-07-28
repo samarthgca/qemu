@@ -1239,6 +1239,30 @@ static bool trans_BMSK_CC_U6(disassemble_info *info, arg_BMSK_CC_U6 *a)
     return true;
 }
 
+static bool trans_SWAP(disassemble_info *info, arg_SWAP *a)
+{
+    output("swap", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_SWAP_U6(disassemble_info *info, arg_SWAP_U6 *a)
+{
+    output("swap", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_SWAPE(disassemble_info *info, arg_SWAPE *a)
+{
+    output("swape", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_SWAPE_U6(disassemble_info *info, arg_SWAPE_U6 *a)
+{
+    output("swape", "r%d, %d", a->b, a->u);
+    return true;
+}
+
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
     bfd_byte buffer[4];
