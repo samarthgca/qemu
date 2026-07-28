@@ -3079,6 +3079,12 @@ static bool trans_BIC_CC_U6(DisasContext *dc, arg_BIC_CC_U6 *a)
     return true;
 }
 
+static bool trans_BIC_S(DisasContext *dc, arg_BIC_S *a)
+{
+    tcg_gen_andc_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
+    return true;
+}
+
 static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
 {
     DisasContext *dc = container_of(dcbase, DisasContext, base);
