@@ -584,6 +584,30 @@ static bool trans_CMP(disassemble_info *info, arg_CMP *a)
     return true;
 }
 
+static bool trans_CMP_U6(disassemble_info *info, arg_CMP_U6 *a)
+{
+    output("CMP", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_CMP_S12(disassemble_info *info, arg_CMP_S12 *a)
+{
+    output("CMP", "r%d, %d", a->b, a->s);
+    return true;
+}
+
+static bool trans_CMP_CC(disassemble_info *info, arg_CMP_CC *a)
+{
+    output("CMP.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_CMP_CC_U6(disassemble_info *info, arg_CMP_CC_U6 *a)
+{
+    output("CMP.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
 static bool trans_BRANCH(disassemble_info *info, arg_BRANCH *a)
 {
     output("branch", "%d", a->sb);
@@ -938,6 +962,37 @@ static bool trans_RCMP_CC_U6(disassemble_info *info, arg_RCMP_CC_U6 *a)
     output("rcmp.cc", "r%d, %d", a->b, a->u);
     return true;
 }
+
+static bool trans_SBC(disassemble_info *info, arg_SBC *a)
+{
+    output("sbc", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_SBC_U6(disassemble_info *info, arg_SBC_U6 *a)
+{
+    output("sbc", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_SBC_S12(disassemble_info *info, arg_SBC_S12 *a)
+{
+    output("sbc", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_SBC_CC(disassemble_info *info, arg_SBC_CC *a)
+{
+    output("sbc.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_SBC_CC_U6(disassemble_info *info, arg_SBC_CC_U6 *a)
+{
+    output("sbc.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
 
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
