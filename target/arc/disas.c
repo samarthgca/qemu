@@ -1209,6 +1209,36 @@ static bool trans_BXOR_CC_U6(disassemble_info *info, arg_BXOR_CC_U6 *a)
     return true;
 }
 
+static bool trans_BMSK(disassemble_info *info, arg_BMSK *a)
+{
+    output("bmsk", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_BMSK_U6(disassemble_info *info, arg_BMSK_U6 *a)
+{
+    output("bmsk", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_BMSK_S12(disassemble_info *info, arg_BMSK_S12 *a)
+{
+    output("bmsk", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_BMSK_CC(disassemble_info *info, arg_BMSK_CC *a)
+{
+    output("bmsk.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_BMSK_CC_U6(disassemble_info *info, arg_BMSK_CC_U6 *a)
+{
+    output("bmsk.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
     bfd_byte buffer[4];
