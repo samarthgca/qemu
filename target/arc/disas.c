@@ -1119,6 +1119,96 @@ static bool trans_JCCD_U6(disassemble_info *info, arg_JCCD_U6 *a)
     return true;
 }
 
+static bool trans_BSET(disassemble_info *info, arg_BSET *a)
+{
+    output("bset", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_BSET_U6(disassemble_info *info, arg_BSET_U6 *a)
+{
+    output("bset", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_BSET_S12(disassemble_info *info, arg_BSET_S12 *a)
+{
+    output("bset", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_BSET_CC(disassemble_info *info, arg_BSET_CC *a)
+{
+    output("bset.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_BSET_CC_U6(disassemble_info *info, arg_BSET_CC_U6 *a)
+{
+    output("bset.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_BCLR(disassemble_info *info, arg_BCLR *a)
+{
+    output("bclr", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_BCLR_U6(disassemble_info *info, arg_BCLR_U6 *a)
+{
+    output("bclr", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_BCLR_S12(disassemble_info *info, arg_BCLR_S12 *a)
+{
+    output("bclr", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_BCLR_CC(disassemble_info *info, arg_BCLR_CC *a)
+{
+    output("bclr.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_BCLR_CC_U6(disassemble_info *info, arg_BCLR_CC_U6 *a)
+{
+    output("bclr.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_BXOR(disassemble_info *info, arg_BXOR *a)
+{
+    output("bxor", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_BXOR_U6(disassemble_info *info, arg_BXOR_U6 *a)
+{
+    output("bxor", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_BXOR_S12(disassemble_info *info, arg_BXOR_S12 *a)
+{
+    output("bxor", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_BXOR_CC(disassemble_info *info, arg_BXOR_CC *a)
+{
+    output("bxor.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_BXOR_CC_U6(disassemble_info *info, arg_BXOR_CC_U6 *a)
+{
+    output("bxor.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
     bfd_byte buffer[4];
