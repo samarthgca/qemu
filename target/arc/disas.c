@@ -993,6 +993,35 @@ static bool trans_SBC_CC_U6(disassemble_info *info, arg_SBC_CC_U6 *a)
     return true;
 }
 
+static bool trans_BIC(disassemble_info *info, arg_BIC *a)
+{
+    output("bic", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_BIC_U6(disassemble_info *info, arg_BIC_U6 *a)
+{
+    output("bic", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_BIC_S12(disassemble_info *info, arg_BIC_S12 *a)
+{
+    output("bic", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_BIC_CC(disassemble_info *info, arg_BIC_CC *a)
+{
+    output("bic.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_BIC_CC_U6(disassemble_info *info, arg_BIC_CC_U6 *a)
+{
+    output("bic.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
 
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {

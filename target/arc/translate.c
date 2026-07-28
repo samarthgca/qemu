@@ -3034,6 +3034,51 @@ static bool trans_SBC_CC_U6(DisasContext *dc, arg_SBC_CC_U6 *a)
     return true;
 }
 
+static bool trans_BIC(DisasContext *dc, arg_BIC *a)
+{
+    tcg_gen_andc_i32(cpu_regs[a->a], cpu_regs[a->b], cpu_regs[a->c]);
+    if (a->f) {
+        flag(0b001010, cpu_regs[a->a], tcg_constant_i32(0), tcg_constant_i32(0));
+    }
+    return true;
+}
+
+static bool trans_BIC_U6(DisasContext *dc, arg_BIC_U6 *a)
+{
+    tcg_gen_andc_i32(cpu_regs[a->a], cpu_regs[a->b], tcg_constant_i32(a->u));
+    if (a->f) {
+        flag(0b001010, cpu_regs[a->a], tcg_constant_i32(0), tcg_constant_i32(0));
+    }
+    return true;
+}
+
+static bool trans_BIC_S12(DisasContext *dc, arg_BIC_S12 *a)
+{
+    tcg_gen_andc_i32(cpu_regs[a->b], cpu_regs[a->b], tcg_constant_i32(a->s));
+    if (a->f) {
+        flag(0b001010, cpu_regs[a->b], tcg_constant_i32(0), tcg_constant_i32(0));
+    }
+    return true;
+}
+
+static bool trans_BIC_CC(DisasContext *dc, arg_BIC_CC *a)
+{
+    tcg_gen_andc_i32(cpu_regs[a->b], cpu_regs[a->b], cpu_regs[a->c]);
+    if (a->f) {
+        flag(0b001010, cpu_regs[a->b], tcg_constant_i32(0), tcg_constant_i32(0));
+    }
+    return true;
+}
+
+static bool trans_BIC_CC_U6(DisasContext *dc, arg_BIC_CC_U6 *a)
+{
+    tcg_gen_andc_i32(cpu_regs[a->b], cpu_regs[a->b], tcg_constant_i32(a->u));
+    if (a->f) {
+        flag(0b001010, cpu_regs[a->b], tcg_constant_i32(0), tcg_constant_i32(0));
+    }
+    return true;
+}
+
 static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
 {
     DisasContext *dc = container_of(dcbase, DisasContext, base);
