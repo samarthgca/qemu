@@ -3133,7 +3133,7 @@ static bool trans_TST_CC_U6(DisasContext *dc, arg_TST_CC_U6 *a)
 static bool trans_TST_S(DisasContext *dc, arg_TST_S *a)
 {
     TCGv_i32 tmp = tcg_temp_new_i32();
-    tcg_gen_and_i32(tmp, cpu_regs[a->b], cpu_regs[a->c]);
+    tcg_gen_and_i32(tmp, cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
     return true;
 }
 
@@ -3212,6 +3212,32 @@ static bool trans_BTST_S(DisasContext *dc, arg_BTST_S *a)
     tcg_gen_and_i32(tmp, cpu_regs[a->b], mask);
     tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, tmp, 0);
     tcg_gen_shri_i32(cpu_nf, tmp, 31);
+    return true;
+}
+
+static bool trans_NEG(DisasContext *dc, arg_neg *a)
+{
+    TCGv_i32 orig_b = tcg_temp_new_i32();
+    tcg_gen_neg_i32(cpu_regs[a->a], cpu_regs[a->b]);
+    if (a->f) {
+        flag(0b000010, cpu_regs[a->a], tcg_constant_i32(0), orig_b);
+    }
+    return true;
+}
+
+static bool trans_NEG_CC(DisasContext *dc, arg_neg_cc *a)
+{
+    TCGv_i32 orig_b = tcg_temp_new_i32();
+    tcg_gen_neg_i32(cpu_regs[a->b], cpu_regs[a->b]);
+    if (a->f) {
+        flag(0b000010, cpu_regs[a->b], tcg_constant_i32(0), orig_b);
+    }
+    return true;
+}
+
+static bool trans_NEG_S(DisasContext *dc, arg_NEG_S *a)
+{
+    tcg_gen_neg_i32(cpu_regs[arc_reduced_regs[a->b]], cpu_regs[arc_reduced_regs[a->c]]);
     return true;
 }
 

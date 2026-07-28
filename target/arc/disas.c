@@ -1083,6 +1083,18 @@ static bool trans_BTST_CC_U6(disassemble_info *info, arg_BTST_CC_U6 *a)
     return true;
 }
 
+static bool trans_NEG(disassemble_info *info, arg_neg *a)
+{
+    output("neg", "r%d, r%d", a->a, a->b);
+    return true;
+}
+
+static bool trans_NEG_CC(disassemble_info *info, arg_neg_cc *a)
+{
+    output("neg.cc", "r%d, r%d", a->b, a->b);
+    return true;
+}
+
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
     bfd_byte buffer[4];
