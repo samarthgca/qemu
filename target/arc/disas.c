@@ -1053,6 +1053,36 @@ static bool trans_TST_CC_U6(disassemble_info *info, arg_TST_CC_U6 *a)
     return true;
 }
 
+static bool trans_BTST(disassemble_info *info, arg_BTST *a)
+{
+    output("btst", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_BTST_U6(disassemble_info *info, arg_BTST_U6 *a)
+{
+    output("btst", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_BTST_S12(disassemble_info *info, arg_BTST_S12 *a)
+{
+    output("btst", "r%d, %d", a->b, a->s);
+    return true;
+}
+
+static bool trans_BTST_CC(disassemble_info *info, arg_BTST_CC *a)
+{
+    output("btst.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_BTST_CC_U6(disassemble_info *info, arg_BTST_CC_U6 *a)
+{
+    output("btst.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
     bfd_byte buffer[4];

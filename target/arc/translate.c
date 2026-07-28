@@ -3137,6 +3137,84 @@ static bool trans_TST_S(DisasContext *dc, arg_TST_S *a)
     return true;
 }
 
+static bool trans_BTST(DisasContext *dc, arg_BTST *a)
+{
+    TCGv_i32 bitpos = tcg_temp_new_i32();
+    TCGv_i32 mask = tcg_temp_new_i32();
+    TCGv_i32 tmp = tcg_temp_new_i32();
+    tcg_gen_andi_i32(bitpos, cpu_regs[a->c], 31);
+    tcg_gen_shl_i32(mask, tcg_constant_i32(1), bitpos);
+    tcg_gen_and_i32(tmp, cpu_regs[a->b], mask);
+    tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, tmp, 0);
+    tcg_gen_shri_i32(cpu_nf, tmp, 31);
+    return true;
+}
+
+static bool trans_BTST_U6(DisasContext *dc, arg_BTST_U6 *a)
+{
+    TCGv_i32 bitpos = tcg_temp_new_i32();
+    TCGv_i32 mask = tcg_temp_new_i32();
+    TCGv_i32 tmp = tcg_temp_new_i32();
+    tcg_gen_andi_i32(bitpos, tcg_constant_i32(a->u), 31);
+    tcg_gen_shl_i32(mask, tcg_constant_i32(1), bitpos);
+    tcg_gen_and_i32(tmp, cpu_regs[a->b], mask);
+    tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, tmp, 0);
+    tcg_gen_shri_i32(cpu_nf, tmp, 31);
+    return true;
+}
+
+static bool trans_BTST_S12(DisasContext *dc, arg_BTST_S12 *a)
+{
+    TCGv_i32 bitpos = tcg_temp_new_i32();
+    TCGv_i32 mask = tcg_temp_new_i32();
+    TCGv_i32 tmp = tcg_temp_new_i32();
+    tcg_gen_andi_i32(bitpos, tcg_constant_i32(a->s), 31);
+    tcg_gen_shl_i32(mask, tcg_constant_i32(1), bitpos);
+    tcg_gen_and_i32(tmp, cpu_regs[a->b], mask);
+    tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, tmp, 0);
+    tcg_gen_shri_i32(cpu_nf, tmp, 31);
+    return true;
+}
+
+static bool trans_BTST_CC(DisasContext *dc, arg_BTST_CC *a)
+{
+    TCGv_i32 bitpos = tcg_temp_new_i32();
+    TCGv_i32 mask = tcg_temp_new_i32();
+    TCGv_i32 tmp = tcg_temp_new_i32();
+    tcg_gen_andi_i32(bitpos, cpu_regs[a->c], 31);
+    tcg_gen_shl_i32(mask, tcg_constant_i32(1), bitpos);
+    tcg_gen_and_i32(tmp, cpu_regs[a->b], mask);
+    tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, tmp, 0);
+    tcg_gen_shri_i32(cpu_nf, tmp, 31);
+    return true;
+}
+
+static bool trans_BTST_CC_U6(DisasContext *dc, arg_BTST_CC_U6 *a)
+{
+    TCGv_i32 bitpos = tcg_temp_new_i32();
+    TCGv_i32 mask = tcg_temp_new_i32();
+    TCGv_i32 tmp = tcg_temp_new_i32();
+    tcg_gen_andi_i32(bitpos, tcg_constant_i32(a->u), 31);
+    tcg_gen_shl_i32(mask, tcg_constant_i32(1), bitpos);
+    tcg_gen_and_i32(tmp, cpu_regs[a->b], mask);
+    tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, tmp, 0);
+    tcg_gen_shri_i32(cpu_nf, tmp, 31);
+    return true;
+}
+
+static bool trans_BTST_S(DisasContext *dc, arg_BTST_S *a)
+{
+    TCGv_i32 bitpos = tcg_temp_new_i32();
+    TCGv_i32 mask = tcg_temp_new_i32();
+    TCGv_i32 tmp = tcg_temp_new_i32();
+    tcg_gen_andi_i32(bitpos, tcg_constant_i32(a->u), 31);
+    tcg_gen_shl_i32(mask, tcg_constant_i32(1), bitpos);
+    tcg_gen_and_i32(tmp, cpu_regs[a->b], mask);
+    tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, tmp, 0);
+    tcg_gen_shri_i32(cpu_nf, tmp, 31);
+    return true;
+}
+
 static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
 {
     DisasContext *dc = container_of(dcbase, DisasContext, base);
