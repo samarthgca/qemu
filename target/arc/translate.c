@@ -3130,6 +3130,12 @@ static bool trans_TST_CC_U6(DisasContext *dc, arg_TST_CC_U6 *a)
     return true;
 }
 
+static bool trans_TST_S(DisasContext *dc, arg_TST_S *a)
+{
+    TCGv_i32 tmp = tcg_temp_new_i32();
+    tcg_gen_and_i32(tmp, cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
 
 static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
 {
