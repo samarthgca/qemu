@@ -1095,6 +1095,30 @@ static bool trans_NEG_CC(disassemble_info *info, arg_neg_cc *a)
     return true;
 }
 
+static bool trans_JCC(disassemble_info *info, arg_JCC *a)
+{
+    output("j.cc", "[r%d]", a->c);
+    return true;
+}
+
+static bool trans_JCC_U6(disassemble_info *info, arg_JCC_U6 *a)
+{
+    output("j.cc", "%d", a->u);
+    return true;
+}
+
+static bool trans_JCCD(disassemble_info *info, arg_JCCD *a)
+{
+    output("j.cc.d", "[r%d]", a->c);
+    return true;
+}
+
+static bool trans_JCCD_U6(disassemble_info *info, arg_JCCD_U6 *a)
+{
+    output("j.cc.d", "%d", a->u);
+    return true;
+}
+
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
     bfd_byte buffer[4];

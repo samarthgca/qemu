@@ -32,6 +32,7 @@ static TCGv_i32 cpu_nf;
 static TCGv_i32 cpu_cf;
 static TCGv_i32 cpu_vf;
 #define SP 28
+#define blink 31
 
 void arc_translate_init(void)
 {
@@ -39,7 +40,7 @@ void arc_translate_init(void)
         "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7",
         "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15",
         "r16", "r17", "r18", "r19", "r20", "r21", "r22", "r23",
-        "r24", "r25", "r26", "r27", "SP", "r29", "r30", "r31",
+        "r24", "r25", "r26", "r27", "SP", "r29", "r30", "blink",
     };
     cpu_pc = tcg_global_mem_new_i32(tcg_env, offsetof(CPUArcState, pc), "pc");
     for (int i = 0; i < 32; i++) 
@@ -2237,6 +2238,36 @@ static bool trans_BRANCH_CC(DisasContext *dc, arg_BRANCH_CC *a)
     if (!a->n) {
         dc->base.is_jmp = DISAS_NORETURN;
     }
+    return true;
+}
+
+static bool trans_JCC(DisasContext *dc, arg_JCC *a)
+{
+    tcg_gen_mov_i32(cpu_pc, cpu_regs[a->c]);
+    dc->base.is_jmp = DISAS_NORETURN;
+    return true;
+}
+
+static bool trans_JCC_U6(DisasContext *dc, arg_JCC_U6 *a)
+{
+    tcg_gen_movi_i32(cpu_pc, a->u);
+    dc->base.is_jmp = DISAS_NORETURN;
+    return true;
+}
+
+static bool trans_JCCD(DisasContext *dc, arg_JCCD *a)
+{
+    dc->has_delay_slot = true;
+    dc->delay_target = tcg_temp_new_i32();
+    tcg_gen_mov_i32(dc->delay_target, cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_JCCD_U6(DisasContext *dc, arg_JCCD_U6 *a)
+{
+    dc->has_delay_slot = true;
+    dc->delay_target = tcg_temp_new_i32();
+    tcg_gen_movi_i32(dc->delay_target, a->u);
     return true;
 }
 
