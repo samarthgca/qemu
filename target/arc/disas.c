@@ -1083,18 +1083,6 @@ static bool trans_BTST_CC_U6(disassemble_info *info, arg_BTST_CC_U6 *a)
     return true;
 }
 
-static bool trans_NEG(disassemble_info *info, arg_neg *a)
-{
-    output("neg", "r%d, r%d", a->a, a->b);
-    return true;
-}
-
-static bool trans_NEG_CC(disassemble_info *info, arg_neg_cc *a)
-{
-    output("neg.cc", "r%d, r%d", a->b, a->b);
-    return true;
-}
-
 static bool trans_JCC(disassemble_info *info, arg_JCC *a)
 {
     output("j.cc", "[r%d]", a->c);
@@ -1260,6 +1248,150 @@ static bool trans_SWAPE(disassemble_info *info, arg_SWAPE *a)
 static bool trans_SWAPE_U6(disassemble_info *info, arg_SWAPE_U6 *a)
 {
     output("swape", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_RLC(disassemble_info *info, arg_RLC *a)
+{
+    output("rlc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_RLC_U6(disassemble_info *info, arg_RLC_U6 *a)
+{
+    output("rlc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_RRC(disassemble_info *info, arg_RRC *a)
+{
+    output("rrc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_RRC_U6(disassemble_info *info, arg_RRC_U6 *a)
+{
+    output("rrc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_MPYM(disassemble_info *info, arg_MPYM *a)
+{
+    output("mpym", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_MPYM_U6(disassemble_info *info, arg_MPYM_U6 *a)
+{
+    output("mpym", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_MPYM_S12(disassemble_info *info, arg_MPYM_S12 *a)
+{
+    output("mpym", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_MPYM_CC(disassemble_info *info, arg_MPYM_CC *a)
+{
+    output("mpym.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_MPYM_CC_U6(disassemble_info *info, arg_MPYM_CC_U6 *a)
+{
+    output("mpym.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_MPYMU(disassemble_info *info, arg_MPYMU *a)
+{
+    output("mpymu", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_MPYMU_U6(disassemble_info *info, arg_MPYMU_U6 *a)
+{
+    output("mpymu", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_MPYMU_S12(disassemble_info *info, arg_MPYMU_S12 *a)
+{
+    output("mpymu", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_MPYMU_CC(disassemble_info *info, arg_MPYMU_CC *a)
+{
+    output("mpymu.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_MPYMU_CC_U6(disassemble_info *info, arg_MPYMU_CC_U6 *a)
+{
+    output("mpymu.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_MPYU(disassemble_info *info, arg_MPYU *a)
+{
+    output("mpyu", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_MPYU_U6(disassemble_info *info, arg_MPYU_U6 *a)
+{
+    output("mpyu", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_MPYU_S12(disassemble_info *info, arg_MPYU_S12 *a)
+{
+    output("mpyu", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_MPYU_CC(disassemble_info *info, arg_MPYU_CC *a)
+{
+    output("mpyu.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_MPYU_CC_U6(disassemble_info *info, arg_MPYU_CC_U6 *a)
+{
+    output("mpyu.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_RSUB(disassemble_info *info, arg_RSUB *a)
+{
+    output("rsub", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_RSUB_U6(disassemble_info *info, arg_RSUB_U6 *a)
+{
+    output("rsub", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_RSUB_S12(disassemble_info *info, arg_RSUB_S12 *a)
+{
+    output("rsub", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_RSUB_CC(disassemble_info *info, arg_RSUB_CC *a)
+{
+    output("rsub.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_RSUB_CC_U6(disassemble_info *info, arg_RSUB_CC_U6 *a)
+{
+    output("rsub.cc", "r%d, %d", a->b, a->u);
     return true;
 }
 
