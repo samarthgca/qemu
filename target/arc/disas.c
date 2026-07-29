@@ -1395,6 +1395,36 @@ static bool trans_RSUB_CC_U6(disassemble_info *info, arg_RSUB_CC_U6 *a)
     return true;
 }
 
+static bool trans_SET(disassemble_info *info, arg_SET *a)
+{
+    output("set", "%d, r%d, r%d, r%d", a->i, a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_SET_U6(disassemble_info *info, arg_SET_U6 *a)
+{
+    output("set", "%d, r%d, r%d, %d", a->i, a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_SET_S12(disassemble_info *info, arg_SET_S12 *a)
+{
+    output("set", "%d, r%d, r%d, %d", a->i, a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_SET_CC(disassemble_info *info, arg_SET_CC *a)
+{
+    output("set.cc", "%d, r%d, r%d", a->i, a->b, a->c);
+    return true;
+}
+
+static bool trans_SET_CC_U6(disassemble_info *info, arg_SET_CC_U6 *a)
+{
+    output("set.cc", "%d, r%d, %d", a->i, a->b, a->u);
+    return true;
+}
+
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
     bfd_byte buffer[4];
