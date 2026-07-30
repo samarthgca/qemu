@@ -1486,35 +1486,82 @@ static bool trans_MPYW_CC_U6(disassemble_info *info, arg_MPYW_CC_U6 *a)
 }
 
 static bool trans_MPYUW(disassemble_info *info, arg_MPYUW *a)
-  {
-      output("mpyuw", "r%d, r%d, r%d", a->a, a->b, a->c);
-      return true;
-  }
+{
+    output("mpyuw", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
 
-  static bool trans_MPYUW_U6(disassemble_info *info, arg_MPYUW_U6 *a)
-  {
-      output("mpyuw", "r%d, r%d, %d", a->a, a->b, a->u);
-      return true;
-  }
+static bool trans_MPYUW_U6(disassemble_info *info, arg_MPYUW_U6 *a)
+{
+    output("mpyuw", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
 
-  static bool trans_MPYUW_S12(disassemble_info *info, arg_MPYUW_S12 *a)
-  {
-      output("mpyuw", "r%d, r%d, %d", a->b, a->b, a->s);
-      return true;
-  }
+static bool trans_MPYUW_S12(disassemble_info *info, arg_MPYUW_S12 *a)
+{
+    output("mpyuw", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
 
-  static bool trans_MPYUW_CC(disassemble_info *info, arg_MPYUW_CC *a)
-  {
-      output("mpyuw.cc", "r%d, r%d", a->b, a->c);
-      return true;
-  }
+static bool trans_MPYUW_CC(disassemble_info *info, arg_MPYUW_CC *a)
+{
+    output("mpyuw.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
 
-  static bool trans_MPYUW_CC_U6(disassemble_info *info, arg_MPYUW_CC_U6 *a)
-  {
-      output("mpyuw.cc", "r%d, %d", a->b, a->u);
-      return true;
-  }
+static bool trans_MPYUW_CC_U6(disassemble_info *info, arg_MPYUW_CC_U6 *a)
+{
+    output("mpyuw.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
 
+static bool trans_FFS(disassemble_info *info, arg_FFS *a)
+{
+    output("ffs", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_FFS_U6(disassemble_info *info, arg_FFS_U6 *a)
+{
+    output("ffs", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_FLS(disassemble_info *info, arg_FLS *a)
+{
+    output("fls", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_FLS_U6(disassemble_info *info, arg_FLS_U6 *a)
+{
+    output("fls", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_NORM(disassemble_info *info, arg_NORM *a)
+{
+    output("norm", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_NORM_U6(disassemble_info *info, arg_NORM_U6 *a)
+{
+    output("norm", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_ROL8(disassemble_info *info, arg_ROL8 *a)
+{
+    output("rol8", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_ROL8_U6(disassemble_info *info, arg_ROL8_U6 *a)
+{
+    output("rol8", "r%d, %d", a->b, a->u);
+    return true;
+}
 
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
