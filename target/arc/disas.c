@@ -1635,6 +1635,18 @@ static bool trans_SR_S12(disassemble_info *info, arg_SR_S12 *a)
     return true;
 }
 
+static bool trans_LD(disassemble_info *info, arg_LD *a)
+{
+    output("ld", "r%d, [r%d,r%d]", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_LD_S9(disassemble_info *info, arg_LD_S9 *a)
+{
+    output("ld", "r%d, [r%d,%d]", a->a, a->b, a->s);
+    return true;
+}
+
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
     bfd_byte buffer[4];

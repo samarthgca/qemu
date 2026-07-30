@@ -1051,6 +1051,35 @@ static void sr_op(TCGv_i32 val, TCGv_i32 addr)
     gen_helper_sr(tcg_env, addr, val);
 }
 
+static void ld_op(TCGv_i32 d, TCGv_i32 s1, TCGv_i32 s2, int x, int zz, int aa)
+{
+    TCGv_i32 orig_b = tcg_temp_new_i32();
+    tcg_gen_mov_i32(orig_b, s1);
+    TCGv_i32 addr = tcg_temp_new_i32();
+    if (aa == 2) {
+        tcg_gen_mov_i32(addr, orig_b);
+    } else if (aa == 3) {
+        int shift = (zz == 2) ? 1 : (zz == 1) ? 0 : 2;
+        TCGv_i32 scaled_c = tcg_temp_new_i32();
+        tcg_gen_shli_i32(scaled_c, s2, shift);
+        tcg_gen_add_i32(addr, orig_b, scaled_c);
+    } else {
+        tcg_gen_add_i32(addr, orig_b, s2);
+    }
+    tcg_gen_add_i32(addr, s1, s2);
+    MemOp mop;
+    if (zz == 0) {
+        mop = MO_LEUL;
+    } else if (zz == 1) {
+        mop = x ? MO_SB : MO_UB;
+    } else if (zz == 2) {
+        mop = x ? MO_LESW : MO_LEUW;
+    } else {
+        mop = MO_LEUL;
+    }
+    tcg_gen_qemu_ld_i32(d, addr, MMU_USER_IDX, mop);
+}
+
 static bool trans_MOV(DisasContext *dc, arg_MOV *a)
 {
     mov(cpu_regs[a->b], cpu_regs[a->c], a->f);
@@ -3106,6 +3135,18 @@ static bool trans_SR_U6(DisasContext *dc, arg_SR_U6 *a)
 static bool trans_SR_S12(DisasContext *dc, arg_SR_S12 *a)
 {
     sr_op(cpu_regs[a->b], tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_LD(DisasContext *dc, arg_LD *a)
+{
+    ld_op(cpu_regs[a->a], cpu_regs[a->b], cpu_regs[a->c], a->x, a->zz, a->aa);
+    return true;
+}
+
+static bool trans_LD_S9(DisasContext *dc, arg_LD_S9 *a)
+{
+    ld_op(cpu_regs[a->a], cpu_regs[a->b], tcg_constant_i32(a->s), a->x, a->zz, a->aa);
     return true;
 }
 
