@@ -1425,6 +1425,97 @@ static bool trans_SET_CC_U6(disassemble_info *info, arg_SET_CC_U6 *a)
     return true;
 }
 
+static bool trans_BMSKN(disassemble_info *info, arg_BMSKN *a)
+{
+    output("bmskn", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_BMSKN_U6(disassemble_info *info, arg_BMSKN_U6 *a)
+{
+    output("bmskn", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_BMSKN_S12(disassemble_info *info, arg_BMSKN_S12 *a)
+{
+    output("bmskn", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_BMSKN_CC(disassemble_info *info, arg_BMSKN_CC *a)
+{
+    output("bmskn.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_BMSKN_CC_U6(disassemble_info *info, arg_BMSKN_CC_U6 *a)
+{
+    output("bmskn.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_MPYW(disassemble_info *info, arg_MPYW *a)
+{
+    output("mpyw", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_MPYW_U6(disassemble_info *info, arg_MPYW_U6 *a)
+{
+    output("mpyw", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_MPYW_S12(disassemble_info *info, arg_MPYW_S12 *a)
+{
+    output("mpyw", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_MPYW_CC(disassemble_info *info, arg_MPYW_CC *a)
+{
+    output("mpyw.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_MPYW_CC_U6(disassemble_info *info, arg_MPYW_CC_U6 *a)
+{
+    output("mpyw.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_MPYUW(disassemble_info *info, arg_MPYUW *a)
+  {
+      output("mpyuw", "r%d, r%d, r%d", a->a, a->b, a->c);
+      return true;
+  }
+
+  static bool trans_MPYUW_U6(disassemble_info *info, arg_MPYUW_U6 *a)
+  {
+      output("mpyuw", "r%d, r%d, %d", a->a, a->b, a->u);
+      return true;
+  }
+
+  static bool trans_MPYUW_S12(disassemble_info *info, arg_MPYUW_S12 *a)
+  {
+      output("mpyuw", "r%d, r%d, %d", a->b, a->b, a->s);
+      return true;
+  }
+
+  static bool trans_MPYUW_CC(disassemble_info *info, arg_MPYUW_CC *a)
+  {
+      output("mpyuw.cc", "r%d, r%d", a->b, a->c);
+      return true;
+  }
+
+  static bool trans_MPYUW_CC_U6(disassemble_info *info, arg_MPYUW_CC_U6 *a)
+  {
+      output("mpyuw.cc", "r%d, %d", a->b, a->u);
+      return true;
+  }
+
+
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
     bfd_byte buffer[4];
