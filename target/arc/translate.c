@@ -1012,6 +1012,45 @@ static void rol8_op(TCGv_i32 d, TCGv_i32 s, int f)
     }
 }
 
+static void normh_op(TCGv_i32 d, TCGv_i32 s, int f)
+{
+    TCGv_i32 orig_s = tcg_temp_new_i32();
+    tcg_gen_mov_i32(orig_s, s);
+    TCGv_i32 sext = tcg_temp_new_i32();
+    tcg_gen_ext16s_i32(sext, s);
+    TCGv_i32 sign_mask = tcg_temp_new_i32();
+    tcg_gen_sari_i32(sign_mask, sext, 31);
+    TCGv_i32 flipped = tcg_temp_new_i32();
+    tcg_gen_xor_i32(flipped, sext, sign_mask);
+    TCGv_i32 clz_val = tcg_temp_new_i32();
+    tcg_gen_clzi_i32(clz_val, flipped, 32);
+    tcg_gen_subi_i32(d, clz_val, 17);
+    if (f) {
+        TCGv_i32 lo16 = tcg_temp_new_i32();
+        tcg_gen_andi_i32(lo16, orig_s, 0xFFFF);
+        tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, lo16, 0);
+        tcg_gen_extract_i32(cpu_nf, orig_s, 15, 1);
+    }
+}
+
+static void flag_op(TCGv_i32 s)
+{
+    tcg_gen_extract_i32(cpu_vf, s, 8, 1);
+    tcg_gen_extract_i32(cpu_cf, s, 9, 1);
+    tcg_gen_extract_i32(cpu_nf, s, 10, 1);
+    tcg_gen_extract_i32(cpu_zf, s, 11, 1);
+}
+
+static void lr_op(TCGv_i32 d, TCGv_i32 addr)
+{
+    gen_helper_lr(d, tcg_env, addr);
+} 
+
+static void sr_op(TCGv_i32 val, TCGv_i32 addr)
+{
+    gen_helper_sr(tcg_env, addr, val);
+}
+
 static bool trans_MOV(DisasContext *dc, arg_MOV *a)
 {
     mov(cpu_regs[a->b], cpu_regs[a->c], a->f);
@@ -1060,12 +1099,33 @@ static bool trans_MOV_S_U8(DisasContext *dc, arg_MOV_S_U8 *a)
     return true;
 }
 
-static bool trans_FLAG_U6(DisasContext *dc, arg_flag *a)
+static bool trans_FLAG(DisasContext *dc, arg_FLAG *a)
 {
-    if (a->u & 1) {
-        gen_helper_halt(tcg_env);
-        dc->base.is_jmp = DISAS_NORETURN;
-    }
+    flag_op(cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_FLAG_U6(DisasContext *dc, arg_FLAG_U6 *a)
+{
+    flag_op(tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_FLAG_S12(DisasContext *dc, arg_FLAG_S12 *a)
+{
+    flag_op(tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_FLAG_CC(DisasContext *dc, arg_FLAG_CC *a)
+{
+    flag_op(cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_FLAG_CC_U6(DisasContext *dc, arg_FLAG_CC_U6 *a)
+{
+    flag_op(tcg_constant_i32(a->u));
     return true;
 }
 
@@ -2977,6 +3037,18 @@ static bool trans_FLS_U6(DisasContext *dc, arg_FLS_U6 *a)
     return true;
 }
 
+static bool trans_NORMH(DisasContext *dc, arg_NORMH *a)
+{
+    normh_op(cpu_regs[a->b], cpu_regs[a->c], a->f);
+    return true;
+}
+
+static bool trans_NORMH_U6(DisasContext *dc, arg_NORMH_U6 *a)
+{
+    normh_op(cpu_regs[a->b], tcg_constant_i32(a->u), a->f);
+    return true;
+}
+
 static bool trans_NORM(DisasContext *dc, arg_NORM *a)
 {
     norm_op(cpu_regs[a->b], cpu_regs[a->c], a->f);
@@ -2998,6 +3070,42 @@ static bool trans_ROL8(DisasContext *dc, arg_ROL8 *a)
 static bool trans_ROL8_U6(DisasContext *dc, arg_ROL8_U6 *a)
 {
     rol8_op(cpu_regs[a->b], tcg_constant_i32(a->u), a->f);
+    return true;
+}
+
+static bool trans_LR(DisasContext *dc, arg_LR *a)
+{
+    lr_op(cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_LR_U6(DisasContext *dc, arg_LR_U6 *a)
+{
+    lr_op(cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_LR_S12(DisasContext *dc, arg_LR_S12 *a)
+{
+    lr_op(cpu_regs[a->b], tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_SR(DisasContext *dc, arg_SR *a)
+{
+    sr_op(cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_SR_U6(DisasContext *dc, arg_SR_U6 *a)
+{
+    sr_op(cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_SR_S12(DisasContext *dc, arg_SR_S12 *a)
+{
+    sr_op(cpu_regs[a->b], tcg_constant_i32(a->s));
     return true;
 }
 

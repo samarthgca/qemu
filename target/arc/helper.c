@@ -47,3 +47,33 @@ uint32_t HELPER(aex)(CPUArcState *env, uint32_t addr, uint32_t new_val)
     }
     return 0;
 }
+
+uint32_t HELPER(lr)(CPUArcState *env, uint32_t addr)
+{
+    if (addr == 0x6) {
+        return env->pc;
+    }
+    for (int i = 0; i < ARRAY_SIZE(aux_regs); i++) {
+        if (aux_regs[i].addr == addr) {
+            uint32_t *field = (uint32_t *)((char *)env + aux_regs[i].offset);
+            return *field;
+        }
+    }
+    return 0;
+}
+
+void HELPER(sr)(CPUArcState *env, uint32_t addr, uint32_t val)
+{
+    if (addr == 0x6) {
+        env->pc = val;
+        return;
+    }
+    for (int i = 0; i < ARRAY_SIZE(aux_regs); i++) {
+        if (aux_regs[i].addr == addr) {
+            uint32_t *field = (uint32_t *)((char *)env + aux_regs[i].offset);
+            *field = val;
+            return;
+        }
+    }
+}
+

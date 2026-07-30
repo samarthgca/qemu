@@ -1,3 +1,7 @@
 DEF_HELPER_FLAGS_1(halt, TCG_CALL_NO_WG, void, env)
 
 DEF_HELPER_FLAGS_3(aex, TCG_CALL_NO_WG, i32, env, i32, i32)
+
+DEF_HELPER_FLAGS_2(lr, TCG_CALL_NO_WG, i32, env, i32)
+
+DEF_HELPER_FLAGS_3(sr, TCG_CALL_NO_WG, void, env, i32, i32)

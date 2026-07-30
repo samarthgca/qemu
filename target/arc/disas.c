@@ -1563,6 +1563,78 @@ static bool trans_ROL8_U6(disassemble_info *info, arg_ROL8_U6 *a)
     return true;
 }
 
+static bool trans_FLAG(disassemble_info *info, arg_FLAG *a)
+{
+    output("flag", "r%d", a->c);
+    return true;
+}
+
+static bool trans_FLAG_S12(disassemble_info *info, arg_FLAG_S12 *a)
+{
+    output("flag", "%d", a->s);
+    return true;
+}
+
+static bool trans_FLAG_CC(disassemble_info *info, arg_FLAG_CC *a)
+{
+    output("flag.cc", "r%d", a->c);
+    return true;
+}
+
+static bool trans_FLAG_CC_U6(disassemble_info *info, arg_FLAG_CC_U6 *a)
+{
+    output("flag.cc", "%d", a->u);
+    return true;
+}
+
+static bool trans_NORMH(disassemble_info *info, arg_NORMH *a)
+{
+    output("normh", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_NORMH_U6(disassemble_info *info, arg_NORMH_U6 *a)
+{
+    output("normh", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_LR(disassemble_info *info, arg_LR *a)
+{
+    output("lr", "r%d, [r%d]", a->b, a->c);
+    return true;
+}
+
+static bool trans_LR_U6(disassemble_info *info, arg_LR_U6 *a)
+{
+    output("lr", "r%d, [%d]", a->b, a->u);
+    return true;
+}
+
+static bool trans_LR_S12(disassemble_info *info, arg_LR_S12 *a)
+{
+    output("lr", "r%d, [%d]", a->b, a->s);
+    return true;
+}
+
+static bool trans_SR(disassemble_info *info, arg_SR *a)
+{
+    output("sr", "r%d, [r%d]", a->b, a->c);
+    return true;
+}
+
+static bool trans_SR_U6(disassemble_info *info, arg_SR_U6 *a)
+{
+    output("sr", "r%d, [%d]", a->b, a->u);
+    return true;
+}
+
+static bool trans_SR_S12(disassemble_info *info, arg_SR_S12 *a)
+{
+    output("sr", "r%d, [%d]", a->b, a->s);
+    return true;
+}
+
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
     bfd_byte buffer[4];
