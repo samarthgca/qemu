@@ -1647,6 +1647,666 @@ static bool trans_LD_S9(disassemble_info *info, arg_LD_S9 *a)
     return true;
 }
 
+static bool trans_DIV(disassemble_info *info, arg_DIV *a)
+{
+    output("div", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_DIV_U6(disassemble_info *info, arg_DIV_U6 *a)
+{
+    output("div", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_DIV_S12(disassemble_info *info, arg_DIV_S12 *a)
+{
+    output("div", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_DIV_CC(disassemble_info *info, arg_DIV_CC *a)
+{
+    output("div.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_DIV_CC_U6(disassemble_info *info, arg_DIV_CC_U6 *a)
+{
+    output("div.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_DIVU(disassemble_info *info, arg_DIVU *a)
+{
+    output("divu", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_DIVU_U6(disassemble_info *info, arg_DIVU_U6 *a)
+{
+    output("divu", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_DIVU_S12(disassemble_info *info, arg_DIVU_S12 *a)
+{
+    output("divu", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_DIVU_CC(disassemble_info *info, arg_DIVU_CC *a)
+{
+    output("divu.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_DIVU_CC_U6(disassemble_info *info, arg_DIVU_CC_U6 *a)
+{
+    output("divu.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_MPYD(disassemble_info *info, arg_MPYD *a)
+{
+    output("mpyd", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_MPYD_U6(disassemble_info *info, arg_MPYD_U6 *a)
+{
+    output("mpyd", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_MPYD_S12(disassemble_info *info, arg_MPYD_S12 *a)
+{
+    output("mpyd", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_MPYD_CC(disassemble_info *info, arg_MPYD_CC *a)
+{
+    output("mpyd.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_MPYD_CC_U6(disassemble_info *info, arg_MPYD_CC_U6 *a)
+{
+    output("mpyd.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_MPYDU(disassemble_info *info, arg_MPYDU *a)
+{
+    output("mpydu", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_MPYDU_U6(disassemble_info *info, arg_MPYDU_U6 *a)
+{
+    output("mpydu", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_MPYDU_S12(disassemble_info *info, arg_MPYDU_S12 *a)
+{
+    output("mpydu", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_MPYDU_CC(disassemble_info *info, arg_MPYDU_CC *a)
+{
+    output("mpydu.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_MPYDU_CC_U6(disassemble_info *info, arg_MPYDU_CC_U6 *a)
+{
+    output("mpydu.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_DMACH(disassemble_info *info, arg_DMACH *a)
+{
+    output("dmach", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_DMACH_U6(disassemble_info *info, arg_DMACH_U6 *a)
+{
+    output("dmach", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_DMACH_S12(disassemble_info *info, arg_DMACH_S12 *a)
+{
+    output("dmach", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_DMACH_CC(disassemble_info *info, arg_DMACH_CC *a)
+{
+    output("dmach.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_DMACH_CC_U6(disassemble_info *info, arg_DMACH_CC_U6 *a)
+{
+    output("dmach.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_DMACHU(disassemble_info *info, arg_DMACHU *a)
+{
+    output("dmachu", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_DMACHU_U6(disassemble_info *info, arg_DMACHU_U6 *a)
+{
+    output("dmachu", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_DMACHU_S12(disassemble_info *info, arg_DMACHU_S12 *a)
+{
+    output("dmachu", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_DMACHU_CC(disassemble_info *info, arg_DMACHU_CC *a)
+{
+    output("dmachu.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_DMACHU_CC_U6(disassemble_info *info, arg_DMACHU_CC_U6 *a)
+{
+    output("dmachu.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_VMPY2H(disassemble_info *info, arg_VMPY2H *a)
+{
+    output("vmpy2h", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_VMPY2H_U6(disassemble_info *info, arg_VMPY2H_U6 *a)
+{
+    output("vmpy2h", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_VMPY2H_S12(disassemble_info *info, arg_VMPY2H_S12 *a)
+{
+    output("vmpy2h", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_VMPY2H_CC(disassemble_info *info, arg_VMPY2H_CC *a)
+{
+    output("vmpy2h.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_VMPY2H_CC_U6(disassemble_info *info, arg_VMPY2H_CC_U6 *a)
+{
+    output("vmpy2h.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_VMPY2HU(disassemble_info *info, arg_VMPY2HU *a)
+{
+    output("vmpy2hu", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_VMPY2HU_U6(disassemble_info *info, arg_VMPY2HU_U6 *a)
+{
+    output("vmpy2hu", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_VMPY2HU_S12(disassemble_info *info, arg_VMPY2HU_S12 *a)
+{
+    output("vmpy2hu", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_VMPY2HU_CC(disassemble_info *info, arg_VMPY2HU_CC *a)
+{
+    output("vmpy2hu.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_VMPY2HU_CC_U6(disassemble_info *info, arg_VMPY2HU_CC_U6 *a)
+{
+    output("vmpy2hu.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_VSUB2(disassemble_info *info, arg_VSUB2 *a)
+{
+    output("vsub2", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_VSUB2_U6(disassemble_info *info, arg_VSUB2_U6 *a)
+{
+    output("vsub2", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_VSUB2_S12(disassemble_info *info, arg_VSUB2_S12 *a)
+{
+    output("vsub2", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_VSUB2_CC(disassemble_info *info, arg_VSUB2_CC *a)
+{
+    output("vsub2.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_VSUB2_CC_U6(disassemble_info *info, arg_VSUB2_CC_U6 *a)
+{
+    output("vsub2.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_VSUB2H(disassemble_info *info, arg_VSUB2H *a)
+{
+    output("vsub2h", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_VSUB2H_U6(disassemble_info *info, arg_VSUB2H_U6 *a)
+{
+    output("vsub2h", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_VSUB2H_S12(disassemble_info *info, arg_VSUB2H_S12 *a)
+{
+    output("vsub2h", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_VSUB2H_CC(disassemble_info *info, arg_VSUB2H_CC *a)
+{
+    output("vsub2h.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}                                              
+
+static bool trans_VSUB2H_CC_U6(disassemble_info *info, arg_VSUB2H_CC_U6 *a)
+{
+    output("vsub2h.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+    
+static bool trans_VADD2(disassemble_info *info, arg_VADD2 *a)
+{
+    output("vadd2", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+    
+static bool trans_VADD2_U6(disassemble_info *info, arg_VADD2_U6 *a)
+{
+    output("vadd2", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_VADD2_S12(disassemble_info *info, arg_VADD2_S12 *a)
+{
+    output("vadd2", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_VADD2_CC(disassemble_info *info, arg_VADD2_CC *a)
+{
+    output("vadd2.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_VADD2_CC_U6(disassemble_info *info, arg_VADD2_CC_U6 *a)
+{
+    output("vadd2.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_VADD2H(disassemble_info *info, arg_VADD2H *a)
+{
+    output("vadd2h", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_VADD2H_U6(disassemble_info *info, arg_VADD2H_U6 *a)
+{
+    output("vadd2h", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_VADD2H_S12(disassemble_info *info, arg_VADD2H_S12 *a)
+{
+    output("vadd2h", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_VADD2H_CC(disassemble_info *info, arg_VADD2H_CC *a)
+{
+    output("vadd2h.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_VADD2H_CC_U6(disassemble_info *info, arg_VADD2H_CC_U6 *a)
+{
+    output("vadd2h.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_VADD4H(disassemble_info *info, arg_VADD4H *a)
+{
+    output("vadd4h", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_VADD4H_U6(disassemble_info *info, arg_VADD4H_U6 *a)
+{
+    output("vadd4h", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_VADD4H_S12(disassemble_info *info, arg_VADD4H_S12 *a)
+{
+    output("vadd4h", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_VADD4H_CC(disassemble_info *info, arg_VADD4H_CC *a)
+{
+    output("vadd4h.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_VADD4H_CC_U6(disassemble_info *info, arg_VADD4H_CC_U6 *a)
+{
+    output("vadd4h.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_VADDSUB(disassemble_info *info, arg_VADDSUB *a)
+{
+    output("vaddsub", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_VADDSUB_U6(disassemble_info *info, arg_VADDSUB_U6 *a)
+{
+    output("vaddsub", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_VADDSUB_S12(disassemble_info *info, arg_VADDSUB_S12 *a)
+{
+    output("vaddsub", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_VADDSUB_CC(disassemble_info *info, arg_VADDSUB_CC *a)
+{
+    output("vaddsub.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_VADDSUB_CC_U6(disassemble_info *info, arg_VADDSUB_CC_U6 *a)
+{
+    output("vaddsub.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_VADDSUB2H(disassemble_info *info, arg_VADDSUB2H *a)
+{
+    output("vaddsub2h", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_VADDSUB2H_U6(disassemble_info *info, arg_VADDSUB2H_U6 *a)
+{
+    output("vaddsub2h", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_VADDSUB2H_S12(disassemble_info *info, arg_VADDSUB2H_S12 *a)
+{
+    output("vaddsub2h", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_VADDSUB2H_CC(disassemble_info *info, arg_VADDSUB2H_CC *a)
+{
+    output("vaddsub2h.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_VADDSUB2H_CC_U6(disassemble_info *info, arg_VADDSUB2H_CC_U6 *a)
+{
+    output("vaddsub2h.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_VADDSUB4H(disassemble_info *info, arg_VADDSUB4H *a)
+{
+    output("vaddsub4h", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_VADDSUB4H_U6(disassemble_info *info, arg_VADDSUB4H_U6 *a)
+{
+    output("vaddsub4h", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_VADDSUB4H_S12(disassemble_info *info, arg_VADDSUB4H_S12 *a)
+{
+    output("vaddsub4h", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_VADDSUB4H_CC(disassemble_info *info, arg_VADDSUB4H_CC *a)
+{
+    output("vaddsub4h.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_VADDSUB4H_CC_U6(disassemble_info *info, arg_VADDSUB4H_CC_U6 *a)
+{
+    output("vaddsub4h.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_VSUBADD(disassemble_info *info, arg_VSUBADD *a)
+{
+    output("vsubadd", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_VSUBADD_U6(disassemble_info *info, arg_VSUBADD_U6 *a)
+{
+    output("vsubadd", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_VSUBADD_S12(disassemble_info *info, arg_VSUBADD_S12 *a)
+{
+    output("vsubadd", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_VSUBADD_CC(disassemble_info *info, arg_VSUBADD_CC *a)
+{
+    output("vsubadd.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_VSUBADD_CC_U6(disassemble_info *info, arg_VSUBADD_CC_U6 *a)
+{
+    output("vsubadd.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_VSUBADD2H(disassemble_info *info, arg_VSUBADD2H *a)
+{
+    output("vsubadd2h", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_VSUBADD2H_U6(disassemble_info *info, arg_VSUBADD2H_U6 *a)
+{
+    output("vsubadd2h", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_VSUBADD2H_S12(disassemble_info *info, arg_VSUBADD2H_S12 *a)
+{
+    output("vsubadd2h", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_VSUBADD2H_CC(disassemble_info *info, arg_VSUBADD2H_CC *a)
+{
+    output("vsubadd2h.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_VSUBADD2H_CC_U6(disassemble_info *info, arg_VSUBADD2H_CC_U6 *a)
+{
+    output("vsubadd2h.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_VSUBADD4H(disassemble_info *info, arg_VSUBADD4H *a)
+{
+    output("vsubadd4h", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_VSUBADD4H_U6(disassemble_info *info, arg_VSUBADD4H_U6 *a)
+{
+    output("vsubadd4h", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_VSUBADD4H_S12(disassemble_info *info, arg_VSUBADD4H_S12 *a)
+{
+    output("vsubadd4h", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_VSUBADD4H_CC(disassemble_info *info, arg_VSUBADD4H_CC *a)
+{
+    output("vsubadd4h.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_VSUBADD4H_CC_U6(disassemble_info *info, arg_VSUBADD4H_CC_U6 *a)
+{
+    output("vsubadd4h.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_VMAC2H(disassemble_info *info, arg_VMAC2H *a)
+{
+    output("vmac2h", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_VMAC2H_U6(disassemble_info *info, arg_VMAC2H_U6 *a)
+{
+    output("vmac2h", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_VMAC2H_S12(disassemble_info *info, arg_VMAC2H_S12 *a)
+{
+    output("vmac2h", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_VMAC2H_CC(disassemble_info *info, arg_VMAC2H_CC *a)
+{
+    output("vmac2h.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_VMAC2H_CC_U6(disassemble_info *info, arg_VMAC2H_CC_U6 *a)
+{
+    output("vmac2h.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_VMAC2HU(disassemble_info *info, arg_VMAC2HU *a)
+{
+    output("vmac2hu", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_VMAC2HU_U6(disassemble_info *info, arg_VMAC2HU_U6 *a)
+{
+    output("vmac2hu", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_VMAC2HU_S12(disassemble_info *info, arg_VMAC2HU_S12 *a)
+{
+    output("vmac2hu", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_VMAC2HU_CC(disassemble_info *info, arg_VMAC2HU_CC *a)
+{
+    output("vmac2hu.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_VMAC2HU_CC_U6(disassemble_info *info, arg_VMAC2HU_CC_U6 *a)
+{
+    output("vmac2hu.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_VSUB4H(disassemble_info *info, arg_VSUB4H *a)
+{
+    output("vsub4h", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_VSUB4H_U6(disassemble_info *info, arg_VSUB4H_U6 *a)
+{
+    output("vsub4h", "r%d, r%d, %d", a->a, a->b, a->u);
+    return true;
+}
+
+static bool trans_VSUB4H_S12(disassemble_info *info, arg_VSUB4H_S12 *a)
+{
+    output("vsub4h", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_VSUB4H_CC(disassemble_info *info, arg_VSUB4H_CC *a)
+{
+    output("vsub4h.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_VSUB4H_CC_U6(disassemble_info *info, arg_VSUB4H_CC_U6 *a)
+{
+    output("vsub4h.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
 int print_insn_arc(bfd_vma addr, disassemble_info *info)
 {
     bfd_byte buffer[4];

@@ -36,6 +36,8 @@ typedef struct CPUArchState {
     uint32_t vecbase_ac_build;
     uint32_t rf_build;
     uint32_t isa_config;
+    uint32_t ACCH;
+    uint32_t ACCL;
 }CPUArcState;
 
 struct ArchCPU {

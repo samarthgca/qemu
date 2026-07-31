@@ -31,6 +31,9 @@ static TCGv_i32 cpu_zf;
 static TCGv_i32 cpu_nf;
 static TCGv_i32 cpu_cf;
 static TCGv_i32 cpu_vf;
+static TCGv_i32 cpu_acch;
+static TCGv_i32 cpu_accl;
+
 #define SP 28
 #define blink 31
 
@@ -51,6 +54,9 @@ void arc_translate_init(void)
     cpu_nf = tcg_global_mem_new_i32(tcg_env, offsetof(CPUArcState, nf), "nf");
     cpu_cf = tcg_global_mem_new_i32(tcg_env, offsetof(CPUArcState, cf), "cf");
     cpu_vf = tcg_global_mem_new_i32(tcg_env, offsetof(CPUArcState, vf), "vf");
+    cpu_acch = tcg_global_mem_new_i32(tcg_env, offsetof(CPUArcState, ACCH), "acch");
+    cpu_accl = tcg_global_mem_new_i32(tcg_env, offsetof(CPUArcState, ACCL), "accl");
+
 }
 
 static TCGv_i32 gen_cc_test(int q)
@@ -1078,6 +1084,316 @@ static void ld_op(TCGv_i32 d, TCGv_i32 s1, TCGv_i32 s2, int x, int zz, int aa)
         mop = MO_LEUL;
     }
     tcg_gen_qemu_ld_i32(d, addr, MMU_USER_IDX, mop);
+}
+
+static void div_op(TCGv_i32 d, TCGv_i32 s1, TCGv_i32 s2, int f)
+{
+    TCGv_i32 is_zero = tcg_temp_new_i32();
+    tcg_gen_setcondi_i32(TCG_COND_EQ, is_zero, s2, 0);
+    TCGv_i32 is_minint = tcg_temp_new_i32();
+    tcg_gen_setcondi_i32(TCG_COND_EQ, is_minint, s1, 0x80000000);
+    TCGv_i32 is_negone = tcg_temp_new_i32();
+    tcg_gen_setcondi_i32(TCG_COND_EQ, is_negone, s2, -1);
+    TCGv_i32 is_overflow = tcg_temp_new_i32();
+    tcg_gen_and_i32(is_overflow, is_minint, is_negone);
+    TCGv_i32 bad = tcg_temp_new_i32();
+    tcg_gen_or_i32(bad, is_zero, is_overflow);
+    TCGv_i32 safe_divisor = tcg_temp_new_i32();
+    tcg_gen_movcond_i32(TCG_COND_NE, safe_divisor, bad, tcg_constant_i32(0), tcg_constant_i32(1), s2);
+    TCGv_i32 quotient = tcg_temp_new_i32();
+    tcg_gen_div_i32(quotient, s1, safe_divisor);
+    tcg_gen_movcond_i32(TCG_COND_NE, d, bad, tcg_constant_i32(0), s1, quotient);
+    if (f) {
+        TCGv_i32 new_zf = tcg_temp_new_i32();
+        tcg_gen_setcondi_i32(TCG_COND_EQ, new_zf, quotient, 0);
+        tcg_gen_movcond_i32(TCG_COND_NE, cpu_zf, bad, tcg_constant_i32(0), cpu_zf, new_zf);
+        TCGv_i32 new_nf = tcg_temp_new_i32();
+        tcg_gen_shri_i32(new_nf, quotient, 31);
+        tcg_gen_movcond_i32(TCG_COND_NE, cpu_nf, bad, tcg_constant_i32(0), cpu_nf, new_nf);  
+        tcg_gen_mov_i32(cpu_vf, bad);
+    }
+}
+
+static void divu_op(TCGv_i32 d, TCGv_i32 s1, TCGv_i32 s2, int f)
+{
+    TCGv_i32 bad = tcg_temp_new_i32();
+    tcg_gen_setcondi_i32(TCG_COND_EQ, bad, s2, 0);
+    TCGv_i32 safe_divisor = tcg_temp_new_i32();
+    tcg_gen_movcond_i32(TCG_COND_NE, safe_divisor, bad, tcg_constant_i32(0), tcg_constant_i32(1), s2);
+    TCGv_i32 quotient = tcg_temp_new_i32();
+    tcg_gen_divu_i32(quotient, s1, safe_divisor);
+    tcg_gen_movcond_i32(TCG_COND_NE, d, bad, tcg_constant_i32(0), s1, quotient);
+    if (f) {
+        TCGv_i32 new_zf = tcg_temp_new_i32();
+        tcg_gen_setcondi_i32(TCG_COND_EQ, new_zf, quotient, 0);
+        tcg_gen_movcond_i32(TCG_COND_NE, cpu_zf, bad, tcg_constant_i32(0), cpu_zf, new_zf);
+        tcg_gen_movi_i32(cpu_nf, 0);
+        tcg_gen_mov_i32(cpu_vf, bad);
+    }
+}
+
+static void mpyd_op(TCGv_i32 d_lo, TCGv_i32 d_hi, TCGv_i32 s1, TCGv_i32 s2, int f)
+{
+    tcg_gen_muls2_i32(d_lo, d_hi, s1, s2);
+    if (f) {
+        TCGv_i32 zero_check = tcg_temp_new_i32();
+        tcg_gen_or_i32(zero_check, d_lo, d_hi);
+        tcg_gen_setcondi_i32(TCG_COND_EQ, cpu_zf, zero_check, 0);
+        tcg_gen_shri_i32(cpu_nf, d_hi, 31);
+        tcg_gen_movi_i32(cpu_vf, 0);
+    }
+}
+
+static void mpydu_op(TCGv_i32 d_lo, TCGv_i32 d_hi, TCGv_i32 s1, TCGv_i32 s2, int f)
+{
+    tcg_gen_mulu2_i32(d_lo, d_hi, s1, s2);
+    if (f) {
+        tcg_gen_movi_i32(cpu_vf, 0);
+    }
+}
+
+static void dmach_op(TCGv_i32 d, TCGv_i32 s1, TCGv_i32 s2)
+{
+    TCGv_i32 b_lo = tcg_temp_new_i32(); 
+    TCGv_i32 b_hi = tcg_temp_new_i32();
+    tcg_gen_ext16s_i32(b_lo, s1);
+    tcg_gen_sari_i32(b_hi, s1, 16); 
+    TCGv_i32 c_lo = tcg_temp_new_i32();
+    TCGv_i32 c_hi = tcg_temp_new_i32();
+    tcg_gen_ext16s_i32(c_lo, s2);
+    tcg_gen_sari_i32(c_hi, s2, 16);
+    TCGv_i32 prod_lo = tcg_temp_new_i32();
+    tcg_gen_mul_i32(prod_lo, b_lo, c_lo);
+    TCGv_i32 prod_hi = tcg_temp_new_i32();
+    tcg_gen_mul_i32(prod_hi, b_hi, c_hi);
+    TCGv_i32 sum = tcg_temp_new_i32();
+    tcg_gen_add_i32(sum, prod_lo, prod_hi);
+    TCGv_i64 sum64 = tcg_temp_new_i64();
+    tcg_gen_ext_i32_i64(sum64, sum);
+    TCGv_i64 acc64 = tcg_temp_new_i64();
+    tcg_gen_concat_i32_i64(acc64, cpu_accl, cpu_acch);
+    TCGv_i64 result64 = tcg_temp_new_i64();
+    tcg_gen_add_i64(result64, acc64, sum64);
+    tcg_gen_extr_i64_i32(cpu_accl, cpu_acch, result64);
+    tcg_gen_mov_i32(d, cpu_accl);
+}
+
+static void dmachu_op(TCGv_i32 d, TCGv_i32 s1, TCGv_i32 s2)
+{
+    TCGv_i32 b_lo = tcg_temp_new_i32();
+    TCGv_i32 b_hi = tcg_temp_new_i32();
+    tcg_gen_ext16u_i32(b_lo, s1);
+    tcg_gen_shri_i32(b_hi, s1, 16);
+    TCGv_i32 c_lo = tcg_temp_new_i32();
+    TCGv_i32 c_hi = tcg_temp_new_i32();
+    tcg_gen_ext16u_i32(c_lo, s2);
+    tcg_gen_shri_i32(c_hi, s2, 16);
+    TCGv_i32 prod_lo = tcg_temp_new_i32();
+    tcg_gen_mul_i32(prod_lo, b_lo, c_lo);
+    TCGv_i32 prod_hi = tcg_temp_new_i32();
+    tcg_gen_mul_i32(prod_hi, b_hi, c_hi);
+    TCGv_i32 sum = tcg_temp_new_i32();
+    tcg_gen_add_i32(sum, prod_lo, prod_hi);
+    TCGv_i64 sum64 = tcg_temp_new_i64();
+    tcg_gen_extu_i32_i64(sum64, sum);
+    TCGv_i64 acc64 = tcg_temp_new_i64();
+    tcg_gen_concat_i32_i64(acc64, cpu_accl, cpu_acch);
+    TCGv_i64 result64 = tcg_temp_new_i64();
+    tcg_gen_add_i64(result64, acc64, sum64);
+    tcg_gen_extr_i64_i32(cpu_accl, cpu_acch, result64);
+    tcg_gen_mov_i32(d, cpu_accl);
+}
+
+static void vmpy2h_op(TCGv_i32 d_w0, TCGv_i32 d_w1, TCGv_i32 s1, TCGv_i32 s2)
+{
+    TCGv_i32 b_lo = tcg_temp_new_i32();
+    TCGv_i32 b_hi = tcg_temp_new_i32();
+    tcg_gen_ext16s_i32(b_lo, s1);
+    tcg_gen_sari_i32(b_hi, s1, 16);
+    TCGv_i32 c_lo = tcg_temp_new_i32();
+    TCGv_i32 c_hi = tcg_temp_new_i32();
+    tcg_gen_ext16s_i32(c_lo, s2);
+    tcg_gen_sari_i32(c_hi, s2, 16);
+    tcg_gen_mul_i32(d_w0, b_lo, c_lo);
+    tcg_gen_mul_i32(d_w1, b_hi, c_hi);
+    tcg_gen_mov_i32(cpu_accl, d_w0);
+    tcg_gen_mov_i32(cpu_acch, d_w1);
+}
+
+static void vmpy2hu_op(TCGv_i32 d_w0, TCGv_i32 d_w1, TCGv_i32 s1, TCGv_i32 s2)
+{
+    TCGv_i32 b_lo = tcg_temp_new_i32();
+    TCGv_i32 b_hi = tcg_temp_new_i32();
+    tcg_gen_ext16u_i32(b_lo, s1);
+    tcg_gen_shri_i32(b_hi, s1, 16);
+    TCGv_i32 c_lo = tcg_temp_new_i32();
+    TCGv_i32 c_hi = tcg_temp_new_i32();
+    tcg_gen_ext16u_i32(c_lo, s2);
+    tcg_gen_shri_i32(c_hi, s2, 16);
+    tcg_gen_mul_i32(d_w0, b_lo, c_lo);
+    tcg_gen_mul_i32(d_w1, b_hi, c_hi);
+    tcg_gen_mov_i32(cpu_accl, d_w0);
+    tcg_gen_mov_i32(cpu_acch, d_w1);
+}
+
+static void vsub2_op(TCGv_i32 d_w0, TCGv_i32 d_w1, TCGv_i32 s1_w0, TCGv_i32 s1_w1, TCGv_i32 s2_w0, TCGv_i32 s2_w1)
+{
+    tcg_gen_sub_i32(d_w0, s1_w0, s2_w0);
+    tcg_gen_sub_i32(d_w1, s1_w1, s2_w1);
+}
+
+static void vsub2h_op(TCGv_i32 d, TCGv_i32 s1, TCGv_i32 s2)
+{
+    TCGv_i32 b_lo = tcg_temp_new_i32();
+    TCGv_i32 b_hi = tcg_temp_new_i32();
+    tcg_gen_ext16u_i32(b_lo, s1);
+    tcg_gen_shri_i32(b_hi, s1, 16);
+    TCGv_i32 c_lo = tcg_temp_new_i32();
+    TCGv_i32 c_hi = tcg_temp_new_i32();
+    tcg_gen_ext16u_i32(c_lo, s2);
+    tcg_gen_shri_i32(c_hi, s2, 16);
+    TCGv_i32 r_lo = tcg_temp_new_i32();
+    tcg_gen_sub_i32(r_lo, b_lo, c_lo);
+    TCGv_i32 r_hi = tcg_temp_new_i32();
+    tcg_gen_sub_i32(r_hi, b_hi, c_hi);
+    tcg_gen_andi_i32(r_lo, r_lo, 0xffff);
+    tcg_gen_deposit_i32(d, r_lo, r_hi, 16, 16);
+}
+
+static void vadd2_op(TCGv_i32 d_w0, TCGv_i32 d_w1,TCGv_i32 s1_w0, TCGv_i32 s1_w1,TCGv_i32 s2_w0, TCGv_i32 s2_w1)
+{
+    tcg_gen_add_i32(d_w0, s1_w0, s2_w0);
+    tcg_gen_add_i32(d_w1, s1_w1, s2_w1);
+}
+
+static void vadd2h_op(TCGv_i32 d, TCGv_i32 s1, TCGv_i32 s2)
+{
+    TCGv_i32 b_lo = tcg_temp_new_i32();
+    TCGv_i32 b_hi = tcg_temp_new_i32();
+    tcg_gen_ext16u_i32(b_lo, s1);
+    tcg_gen_shri_i32(b_hi, s1, 16);
+    TCGv_i32 c_lo = tcg_temp_new_i32();
+    TCGv_i32 c_hi = tcg_temp_new_i32();
+    tcg_gen_ext16u_i32(c_lo, s2);
+    tcg_gen_shri_i32(c_hi, s2, 16);
+    TCGv_i32 r_lo = tcg_temp_new_i32();
+    tcg_gen_add_i32(r_lo, b_lo, c_lo);
+    TCGv_i32 r_hi = tcg_temp_new_i32();
+    tcg_gen_add_i32(r_hi, b_hi, c_hi);
+    tcg_gen_andi_i32(r_lo, r_lo, 0xffff);
+    tcg_gen_deposit_i32(d, r_lo, r_hi, 16, 16);
+}
+
+static void vadd4h_op(TCGv_i32 d_w0, TCGv_i32 d_w1,TCGv_i32 s1_w0, TCGv_i32 s1_w1, TCGv_i32 s2_w0, TCGv_i32 s2_w1)
+{
+    vadd2h_op(d_w0, s1_w0, s2_w0);
+    vadd2h_op(d_w1, s1_w1, s2_w1);
+}
+
+static void vaddsub_op(TCGv_i32 d_w0, TCGv_i32 d_w1,TCGv_i32 s1_w0, TCGv_i32 s1_w1, TCGv_i32 s2_w0, TCGv_i32 s2_w1)
+{
+    tcg_gen_add_i32(d_w0, s1_w0, s2_w0);
+    tcg_gen_sub_i32(d_w1, s1_w1, s2_w1);
+}
+
+static void vaddsub2h_op(TCGv_i32 d, TCGv_i32 s1, TCGv_i32 s2)
+{
+    TCGv_i32 b_lo = tcg_temp_new_i32();
+    TCGv_i32 b_hi = tcg_temp_new_i32();
+    tcg_gen_ext16u_i32(b_lo, s1);
+    tcg_gen_shri_i32(b_hi, s1, 16);
+    TCGv_i32 c_lo = tcg_temp_new_i32();
+    TCGv_i32 c_hi = tcg_temp_new_i32();
+    tcg_gen_ext16u_i32(c_lo, s2);
+    tcg_gen_shri_i32(c_hi, s2, 16);
+    TCGv_i32 r_lo = tcg_temp_new_i32();
+    tcg_gen_add_i32(r_lo, b_lo, c_lo);
+    TCGv_i32 r_hi = tcg_temp_new_i32();
+    tcg_gen_sub_i32(r_hi, b_hi, c_hi);
+    tcg_gen_andi_i32(r_lo, r_lo, 0xffff);
+    tcg_gen_deposit_i32(d, r_lo, r_hi, 16, 16);
+}
+
+ static void vaddsub4h_op(TCGv_i32 d_w0, TCGv_i32 d_w1,TCGv_i32 s1_w0, TCGv_i32 s1_w1,TCGv_i32 s2_w0, TCGv_i32 s2_w1)
+{
+    vaddsub2h_op(d_w0, s1_w0, s2_w0);
+    vaddsub2h_op(d_w1, s1_w1, s2_w1);
+}
+
+static void vsubadd_op(TCGv_i32 d_w0, TCGv_i32 d_w1,TCGv_i32 s1_w0, TCGv_i32 s1_w1,TCGv_i32 s2_w0, TCGv_i32 s2_w1)
+{
+    tcg_gen_sub_i32(d_w0, s1_w0, s2_w0);
+    tcg_gen_add_i32(d_w1, s1_w1, s2_w1);
+}
+
+static void vsubadd2h_op(TCGv_i32 d, TCGv_i32 s1, TCGv_i32 s2)
+{
+    TCGv_i32 b_lo = tcg_temp_new_i32();
+    TCGv_i32 b_hi = tcg_temp_new_i32();
+    tcg_gen_ext16u_i32(b_lo, s1);
+    tcg_gen_shri_i32(b_hi, s1, 16);
+    TCGv_i32 c_lo = tcg_temp_new_i32();
+    TCGv_i32 c_hi = tcg_temp_new_i32();
+    tcg_gen_ext16u_i32(c_lo, s2);
+    tcg_gen_shri_i32(c_hi, s2, 16);
+    TCGv_i32 r_lo = tcg_temp_new_i32();
+    tcg_gen_sub_i32(r_lo, b_lo, c_lo);
+    TCGv_i32 r_hi = tcg_temp_new_i32();
+    tcg_gen_add_i32(r_hi, b_hi, c_hi);
+    tcg_gen_andi_i32(r_lo, r_lo, 0xffff);
+    tcg_gen_deposit_i32(d, r_lo, r_hi, 16, 16);
+}
+
+static void vsubadd4h_op(TCGv_i32 d_w0, TCGv_i32 d_w1,TCGv_i32 s1_w0, TCGv_i32 s1_w1,TCGv_i32 s2_w0, TCGv_i32 s2_w1)
+{
+    vsubadd2h_op(d_w0, s1_w0, s2_w0);
+    vsubadd2h_op(d_w1, s1_w1, s2_w1);
+}
+
+static void vmac2h_op(TCGv_i32 d_w0, TCGv_i32 d_w1, TCGv_i32 s1, TCGv_i32 s2)
+{
+    TCGv_i32 b_lo = tcg_temp_new_i32();
+    TCGv_i32 b_hi = tcg_temp_new_i32();
+    tcg_gen_ext16s_i32(b_lo, s1);
+    tcg_gen_sari_i32(b_hi, s1, 16);
+    TCGv_i32 c_lo = tcg_temp_new_i32();
+    TCGv_i32 c_hi = tcg_temp_new_i32();
+    tcg_gen_ext16s_i32(c_lo, s2);
+    tcg_gen_sari_i32(c_hi, s2, 16);
+    TCGv_i32 prod_lo = tcg_temp_new_i32();
+    tcg_gen_mul_i32(prod_lo, b_lo, c_lo);
+    TCGv_i32 prod_hi = tcg_temp_new_i32();
+    tcg_gen_mul_i32(prod_hi, b_hi, c_hi);
+    tcg_gen_add_i32(cpu_accl, cpu_accl, prod_lo);
+    tcg_gen_add_i32(cpu_acch, cpu_acch, prod_hi);
+    tcg_gen_mov_i32(d_w0, cpu_accl);
+    tcg_gen_mov_i32(d_w1, cpu_acch);
+}
+
+static void vmac2hu_op(TCGv_i32 d_w0, TCGv_i32 d_w1, TCGv_i32 s1, TCGv_i32 s2)
+{
+    TCGv_i32 b_lo = tcg_temp_new_i32();
+    TCGv_i32 b_hi = tcg_temp_new_i32();
+    tcg_gen_ext16u_i32(b_lo, s1);
+    tcg_gen_shri_i32(b_hi, s1, 16);
+    TCGv_i32 c_lo = tcg_temp_new_i32();
+    TCGv_i32 c_hi = tcg_temp_new_i32();
+    tcg_gen_ext16u_i32(c_lo, s2);
+    tcg_gen_shri_i32(c_hi, s2, 16);
+    TCGv_i32 prod_lo = tcg_temp_new_i32();
+    tcg_gen_mul_i32(prod_lo, b_lo, c_lo);
+    TCGv_i32 prod_hi = tcg_temp_new_i32();
+    tcg_gen_mul_i32(prod_hi, b_hi, c_hi);
+    tcg_gen_add_i32(cpu_accl, cpu_accl, prod_lo);
+    tcg_gen_add_i32(cpu_acch, cpu_acch, prod_hi);
+    tcg_gen_mov_i32(d_w0, cpu_accl);
+    tcg_gen_mov_i32(d_w1, cpu_acch);
+}
+
+static void vsub4h_op(TCGv_i32 d_w0, TCGv_i32 d_w1,TCGv_i32 s1_w0, TCGv_i32 s1_w1, TCGv_i32 s2_w0, TCGv_i32 s2_w1)
+{
+    vsub2h_op(d_w0, s1_w0, s2_w0);
+    vsub2h_op(d_w1, s1_w1, s2_w1);
 }
 
 static bool trans_MOV(DisasContext *dc, arg_MOV *a)
@@ -3150,6 +3466,666 @@ static bool trans_LD_S9(DisasContext *dc, arg_LD_S9 *a)
     return true;
 }
 
+static bool trans_DIV(DisasContext *dc, arg_DIV *a)
+{
+    div_op(cpu_regs[a->a], cpu_regs[a->b], cpu_regs[a->c], a->f);
+    return true;
+}
+
+static bool trans_DIV_U6(DisasContext *dc, arg_DIV_U6 *a)
+{
+    div_op(cpu_regs[a->a], cpu_regs[a->b], tcg_constant_i32(a->u),a->f);
+    return true;
+}
+
+static bool trans_DIV_S12(DisasContext *dc, arg_DIV_S12 *a)
+{
+    div_op(cpu_regs[a->b], cpu_regs[a->b], tcg_constant_i32(a->s),a->f);
+    return true;
+}
+
+static bool trans_DIV_CC(DisasContext *dc, arg_DIV_CC *a)
+{
+    div_op(cpu_regs[a->b], cpu_regs[a->b], cpu_regs[a->c], a->f);
+    return true;
+}
+
+static bool trans_DIV_CC_U6(DisasContext *dc, arg_DIV_CC_U6 *a)
+{
+    div_op(cpu_regs[a->b], cpu_regs[a->b], tcg_constant_i32(a->u), a->f);
+    return true;
+}
+
+static bool trans_DIVU(DisasContext *dc, arg_DIVU *a)
+{
+    divu_op(cpu_regs[a->a], cpu_regs[a->b], cpu_regs[a->c], a->f);
+    return true;
+}
+
+static bool trans_DIVU_U6(DisasContext *dc, arg_DIVU_U6 *a)
+{
+    divu_op(cpu_regs[a->a], cpu_regs[a->b], tcg_constant_i32(a->u),a->f);
+    return true;
+}
+
+static bool trans_DIVU_S12(DisasContext *dc, arg_DIVU_S12 *a)
+{
+    divu_op(cpu_regs[a->b], cpu_regs[a->b], tcg_constant_i32(a->s),a->f);
+    return true;
+}
+
+static bool trans_DIVU_CC(DisasContext *dc, arg_DIVU_CC *a)
+{
+    divu_op(cpu_regs[a->b], cpu_regs[a->b], cpu_regs[a->c], a->f);
+    return true;
+}
+
+static bool trans_DIVU_CC_U6(DisasContext *dc, arg_DIVU_CC_U6 *a)
+{
+    divu_op(cpu_regs[a->b], cpu_regs[a->b], tcg_constant_i32(a->u), a->f);
+    return true;
+}
+
+static bool trans_MPYD(DisasContext *dc, arg_MPYD *a)
+{
+    mpyd_op(cpu_regs[a->a], cpu_regs[a->a + 1], cpu_regs[a->b], cpu_regs[a->c], a->f);
+    return true;
+}
+
+static bool trans_MPYD_U6(DisasContext *dc, arg_MPYD_U6 *a)
+{
+    mpyd_op(cpu_regs[a->a], cpu_regs[a->a + 1], cpu_regs[a->b], tcg_constant_i32(a->u),a->f);
+    return true;
+}
+
+static bool trans_MPYD_S12(DisasContext *dc, arg_MPYD_S12 *a)
+{
+    mpyd_op(cpu_regs[a->b], cpu_regs[a->b + 1], cpu_regs[a->b], tcg_constant_i32(a->s),a->f);
+    return true;
+}
+
+static bool trans_MPYD_CC(DisasContext *dc, arg_MPYD_CC *a)
+{
+    mpyd_op(cpu_regs[a->b], cpu_regs[a->b + 1], cpu_regs[a->b], cpu_regs[a->c], a->f);
+    return true;
+}
+
+static bool trans_MPYD_CC_U6(DisasContext *dc, arg_MPYD_CC_U6 *a)
+{
+    mpyd_op(cpu_regs[a->b], cpu_regs[a->b + 1], cpu_regs[a->b], tcg_constant_i32(a->u), a->f);
+    return true;
+}
+
+static bool trans_MPYDU(DisasContext *dc, arg_MPYDU *a)
+{
+    mpydu_op(cpu_regs[a->a], cpu_regs[a->a + 1], cpu_regs[a->b], cpu_regs[a->c], a->f);
+    return true;
+}
+
+static bool trans_MPYDU_U6(DisasContext *dc, arg_MPYDU_U6 *a)
+{
+    mpydu_op(cpu_regs[a->a], cpu_regs[a->a + 1], cpu_regs[a->b], tcg_constant_i32(a->u),a->f);
+    return true;
+}
+
+static bool trans_MPYDU_S12(DisasContext *dc, arg_MPYDU_S12 *a)
+{
+    mpydu_op(cpu_regs[a->b], cpu_regs[a->b + 1], cpu_regs[a->b], tcg_constant_i32(a->s),a->f);
+    return true;
+}
+
+static bool trans_MPYDU_CC(DisasContext *dc, arg_MPYDU_CC *a)
+{
+    mpydu_op(cpu_regs[a->b], cpu_regs[a->b + 1], cpu_regs[a->b], cpu_regs[a->c], a->f);
+    return true;
+}
+
+static bool trans_MPYDU_CC_U6(DisasContext *dc, arg_MPYDU_CC_U6 *a)
+{
+    mpydu_op(cpu_regs[a->b], cpu_regs[a->b + 1], cpu_regs[a->b], tcg_constant_i32(a->u), a->f);
+    return true;
+}
+
+static bool trans_DMACH(DisasContext *dc, arg_DMACH *a)
+{
+    dmach_op(cpu_regs[a->a], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_DMACH_U6(DisasContext *dc, arg_DMACH_U6 *a)
+{
+    dmach_op(cpu_regs[a->a], cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_DMACH_S12(DisasContext *dc, arg_DMACH_S12 *a)
+{
+    dmach_op(cpu_regs[a->b], cpu_regs[a->b], tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_DMACH_CC(DisasContext *dc, arg_DMACH_CC *a)
+{
+    dmach_op(cpu_regs[a->b], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_DMACH_CC_U6(DisasContext *dc, arg_DMACH_CC_U6 *a)
+{
+    dmach_op(cpu_regs[a->b], cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_DMACHU(DisasContext *dc, arg_DMACHU *a)
+{
+    dmachu_op(cpu_regs[a->a], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_DMACHU_U6(DisasContext *dc, arg_DMACHU_U6 *a)
+{
+    dmachu_op(cpu_regs[a->a], cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_DMACHU_S12(DisasContext *dc, arg_DMACHU_S12 *a)
+{
+    dmachu_op(cpu_regs[a->b], cpu_regs[a->b], tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_DMACHU_CC(DisasContext *dc, arg_DMACHU_CC *a)
+{
+    dmachu_op(cpu_regs[a->b], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_DMACHU_CC_U6(DisasContext *dc, arg_DMACHU_CC_U6 *a)
+{
+    dmachu_op(cpu_regs[a->b], cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VMPY2H(DisasContext *dc, arg_VMPY2H *a)
+{
+    vmpy2h_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_VMPY2H_U6(DisasContext *dc, arg_VMPY2H_U6 *a)
+{
+    vmpy2h_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VMPY2H_S12(DisasContext *dc, arg_VMPY2H_S12 *a)
+{
+    vmpy2h_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_VMPY2H_CC(DisasContext *dc, arg_VMPY2H_CC *a)
+{
+    vmpy2h_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_VMPY2H_CC_U6(DisasContext *dc, arg_VMPY2H_CC_U6 *a)
+{
+    vmpy2h_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VMPY2HU(DisasContext *dc, arg_VMPY2HU *a)
+{
+    vmpy2hu_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_VMPY2HU_U6(DisasContext *dc, arg_VMPY2HU_U6 *a)
+{
+    vmpy2hu_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VMPY2HU_S12(DisasContext *dc, arg_VMPY2HU_S12 *a)
+{
+    vmpy2hu_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_VMPY2HU_CC(DisasContext *dc, arg_VMPY2HU_CC *a)
+{
+    vmpy2hu_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_VMPY2HU_CC_U6(DisasContext *dc, arg_VMPY2HU_CC_U6 *a)
+{
+    vmpy2hu_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VSUB2(DisasContext *dc, arg_VSUB2 *a)
+{
+    vsub2_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->c], cpu_regs[a->c+1]);
+    return true;
+}
+
+static bool trans_VSUB2_U6(DisasContext *dc, arg_VSUB2_U6 *a)
+{
+    vsub2_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->u), tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VSUB2_S12(DisasContext *dc, arg_VSUB2_S12 *a)
+{
+    vsub2_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->s), tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_VSUB2_CC(DisasContext *dc, arg_VSUB2_CC *a)
+{
+    vsub2_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->c], cpu_regs[a->c+1]);
+    return true;
+}
+
+static bool trans_VSUB2_CC_U6(DisasContext *dc, arg_VSUB2_CC_U6 *a)
+{
+    vsub2_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->u), tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VSUB2H(DisasContext *dc, arg_VSUB2H *a)
+{
+    vsub2h_op(cpu_regs[a->a], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_VSUB2H_U6(DisasContext *dc, arg_VSUB2H_U6 *a)
+{
+    vsub2h_op(cpu_regs[a->a], cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VSUB2H_S12(DisasContext *dc, arg_VSUB2H_S12 *a)
+{
+    vsub2h_op(cpu_regs[a->b], cpu_regs[a->b], tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_VSUB2H_CC(DisasContext *dc, arg_VSUB2H_CC *a)
+{
+    vsub2h_op(cpu_regs[a->b], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_VSUB2H_CC_U6(DisasContext *dc, arg_VSUB2H_CC_U6 *a)
+{
+    vsub2h_op(cpu_regs[a->b], cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VADD2(DisasContext *dc, arg_VADD2 *a)
+{
+    vadd2_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->c], cpu_regs[a->c+1]);
+    return true;
+}
+
+static bool trans_VADD2_U6(DisasContext *dc, arg_VADD2_U6 *a)
+{
+    vadd2_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->u), tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VADD2_S12(DisasContext *dc, arg_VADD2_S12 *a)
+{
+    vadd2_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->s), tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_VADD2_CC(DisasContext *dc, arg_VADD2_CC *a)
+{
+    vadd2_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->c], cpu_regs[a->c+1]);
+    return true;
+}
+
+static bool trans_VADD2_CC_U6(DisasContext *dc, arg_VADD2_CC_U6 *a)
+{
+    vadd2_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->u), tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VADD2H(DisasContext *dc, arg_VADD2H *a)
+{
+    vadd2h_op(cpu_regs[a->a], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_VADD2H_U6(DisasContext *dc, arg_VADD2H_U6 *a)
+{
+    vadd2h_op(cpu_regs[a->a], cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VADD2H_S12(DisasContext *dc, arg_VADD2H_S12 *a)
+{
+    vadd2h_op(cpu_regs[a->b], cpu_regs[a->b], tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_VADD2H_CC(DisasContext *dc, arg_VADD2H_CC *a)
+{
+    vadd2h_op(cpu_regs[a->b], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_VADD2H_CC_U6(DisasContext *dc, arg_VADD2H_CC_U6 *a)
+{
+    vadd2h_op(cpu_regs[a->b], cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VADD4H(DisasContext *dc, arg_VADD4H *a)
+{
+    vadd4h_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->c], cpu_regs[a->c+1]);
+    return true;
+}
+
+static bool trans_VADD4H_U6(DisasContext *dc, arg_VADD4H_U6 *a)
+{
+    vadd4h_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->u), tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VADD4H_S12(DisasContext *dc, arg_VADD4H_S12 *a)
+{
+    vadd4h_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->s), tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_VADD4H_CC(DisasContext *dc, arg_VADD4H_CC *a)
+{
+    vadd4h_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->c], cpu_regs[a->c+1]);
+    return true;
+}
+
+static bool trans_VADD4H_CC_U6(DisasContext *dc, arg_VADD4H_CC_U6 *a)
+{
+    vadd4h_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->u), tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VADDSUB(DisasContext *dc, arg_VADDSUB *a)
+{
+    vaddsub_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->c], cpu_regs[a->c+1]);
+    return true;
+}
+
+static bool trans_VADDSUB_U6(DisasContext *dc, arg_VADDSUB_U6 *a)
+{
+    vaddsub_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->u), tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VADDSUB_S12(DisasContext *dc, arg_VADDSUB_S12 *a)
+{
+    vaddsub_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->s), tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_VADDSUB_CC(DisasContext *dc, arg_VADDSUB_CC *a)
+{
+    vaddsub_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->c], cpu_regs[a->c+1]);
+    return true;
+}
+
+static bool trans_VADDSUB_CC_U6(DisasContext *dc, arg_VADDSUB_CC_U6 *a)
+{
+    vaddsub_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->u), tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VADDSUB2H(DisasContext *dc, arg_VADDSUB2H *a)
+{
+    vaddsub2h_op(cpu_regs[a->a], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_VADDSUB2H_U6(DisasContext *dc, arg_VADDSUB2H_U6 *a)
+{
+    vaddsub2h_op(cpu_regs[a->a], cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VADDSUB2H_S12(DisasContext *dc, arg_VADDSUB2H_S12 *a)
+{
+    vaddsub2h_op(cpu_regs[a->b], cpu_regs[a->b], tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_VADDSUB2H_CC(DisasContext *dc, arg_VADDSUB2H_CC *a)
+{
+    vaddsub2h_op(cpu_regs[a->b], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_VADDSUB2H_CC_U6(DisasContext *dc, arg_VADDSUB2H_CC_U6 *a)
+{
+    vaddsub2h_op(cpu_regs[a->b], cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VADDSUB4H(DisasContext *dc, arg_VADDSUB4H *a)
+{
+    vaddsub4h_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->c], cpu_regs[a->c+1]);
+    return true;
+}
+
+static bool trans_VADDSUB4H_U6(DisasContext *dc, arg_VADDSUB4H_U6 *a)
+{
+    vaddsub4h_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->u), tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VADDSUB4H_S12(DisasContext *dc, arg_VADDSUB4H_S12 *a)
+{
+    vaddsub4h_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->s), tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_VADDSUB4H_CC(DisasContext *dc, arg_VADDSUB4H_CC *a)
+{
+    vaddsub4h_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->c], cpu_regs[a->c+1]);
+    return true;
+}
+
+static bool trans_VADDSUB4H_CC_U6(DisasContext *dc, arg_VADDSUB4H_CC_U6 *a)
+{
+    vaddsub4h_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->u), tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VSUBADD(DisasContext *dc, arg_VSUBADD *a)
+{
+    vsubadd_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->c], cpu_regs[a->c+1]);
+    return true;
+}
+
+static bool trans_VSUBADD_U6(DisasContext *dc, arg_VSUBADD_U6 *a)
+{
+    vsubadd_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->u), tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VSUBADD_S12(DisasContext *dc, arg_VSUBADD_S12 *a)
+{
+    vsubadd_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->s), tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_VSUBADD_CC(DisasContext *dc, arg_VSUBADD_CC *a)
+{
+    vsubadd_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->c], cpu_regs[a->c+1]);
+    return true;
+}
+
+static bool trans_VSUBADD_CC_U6(DisasContext *dc, arg_VSUBADD_CC_U6 *a)
+{
+    vsubadd_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->u), tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VSUBADD2H(DisasContext *dc, arg_VSUBADD2H *a)
+{
+    vsubadd2h_op(cpu_regs[a->a], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_VSUBADD2H_U6(DisasContext *dc, arg_VSUBADD2H_U6 *a)
+{
+    vsubadd2h_op(cpu_regs[a->a], cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VSUBADD2H_S12(DisasContext *dc, arg_VSUBADD2H_S12 *a)
+{
+    vsubadd2h_op(cpu_regs[a->b], cpu_regs[a->b], tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_VSUBADD2H_CC(DisasContext *dc, arg_VSUBADD2H_CC *a)
+{
+    vsubadd2h_op(cpu_regs[a->b], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_VSUBADD2H_CC_U6(DisasContext *dc, arg_VSUBADD2H_CC_U6 *a)
+{
+    vsubadd2h_op(cpu_regs[a->b], cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VSUBADD4H(DisasContext *dc, arg_VSUBADD4H *a)
+{
+    vsubadd4h_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->c], cpu_regs[a->c+1]);
+    return true;
+}
+
+static bool trans_VSUBADD4H_U6(DisasContext *dc, arg_VSUBADD4H_U6 *a)
+{
+    vsubadd4h_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->u), tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VSUBADD4H_S12(DisasContext *dc, arg_VSUBADD4H_S12 *a)
+{
+    vsubadd4h_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->s), tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_VSUBADD4H_CC(DisasContext *dc, arg_VSUBADD4H_CC *a)
+{
+    vsubadd4h_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->c], cpu_regs[a->c+1]);
+    return true;
+}
+
+static bool trans_VSUBADD4H_CC_U6(DisasContext *dc, arg_VSUBADD4H_CC_U6 *a)
+{
+    vsubadd4h_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->u), tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VMAC2H(DisasContext *dc, arg_VMAC2H *a)
+{
+    vmac2h_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_VMAC2H_U6(DisasContext *dc, arg_VMAC2H_U6 *a)
+{
+    vmac2h_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VMAC2H_S12(DisasContext *dc, arg_VMAC2H_S12 *a)
+{
+    vmac2h_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_VMAC2H_CC(DisasContext *dc, arg_VMAC2H_CC *a)
+{
+    vmac2h_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_VMAC2H_CC_U6(DisasContext *dc, arg_VMAC2H_CC_U6 *a)
+{
+    vmac2h_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VMAC2HU(DisasContext *dc, arg_VMAC2HU *a)
+{
+    vmac2hu_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_VMAC2HU_U6(DisasContext *dc, arg_VMAC2HU_U6 *a)
+{
+    vmac2hu_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VMAC2HU_S12(DisasContext *dc, arg_VMAC2HU_S12 *a)
+{
+    vmac2hu_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_VMAC2HU_CC(DisasContext *dc, arg_VMAC2HU_CC *a)
+{
+    vmac2hu_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->c]);
+    return true;
+}
+
+static bool trans_VMAC2HU_CC_U6(DisasContext *dc, arg_VMAC2HU_CC_U6 *a)
+{
+    vmac2hu_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VSUB4H(DisasContext *dc, arg_VSUB4H *a)
+{
+    vsub4h_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->c], cpu_regs[a->c+1]);
+    return true;
+}
+
+static bool trans_VSUB4H_U6(DisasContext *dc, arg_VSUB4H_U6 *a)
+{
+    vsub4h_op(cpu_regs[a->a], cpu_regs[a->a+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->u), tcg_constant_i32(a->u));
+    return true;
+}
+
+static bool trans_VSUB4H_S12(DisasContext *dc, arg_VSUB4H_S12 *a)
+{
+    vsub4h_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->s), tcg_constant_i32(a->s));
+    return true;
+}
+
+static bool trans_VSUB4H_CC(DisasContext *dc, arg_VSUB4H_CC *a)
+{
+    vsub4h_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->c], cpu_regs[a->c+1]);
+    return true;
+}
+
+static bool trans_VSUB4H_CC_U6(DisasContext *dc, arg_VSUB4H_CC_U6 *a)
+{
+    vsub4h_op(cpu_regs[a->b], cpu_regs[a->b+1], cpu_regs[a->b], cpu_regs[a->b+1], tcg_constant_i32(a->u), tcg_constant_i32(a->u));
+    return true;
+}
+
 static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
 {
     DisasContext *dc = container_of(dcbase, DisasContext, base);
@@ -3213,8 +4189,7 @@ static const TranslatorOps arc_tr_ops = {
     .translate_insn     = arc_tr_translate_insn,
     .tb_stop            = arc_tr_tb_stop,};
 
-void arc_translate_code(CPUState *cs, TranslationBlock *tb,
-                             int *max_insns, vaddr pc, void *host_pc)
+void arc_translate_code(CPUState *cs, TranslationBlock *tb, int *max_insns, vaddr pc, void *host_pc)
 {
     DisasContext dc = { };
     translator_loop(cs, tb, max_insns, pc, host_pc, &arc_tr_ops, &dc.base);
