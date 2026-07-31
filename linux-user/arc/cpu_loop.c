@@ -17,6 +17,12 @@ void cpu_loop(CPUArcState *env)
         switch (trapnr) {
             case EXCP_INTERRUPT:
                 break;
+            case EXCP_SYSCALL: {
+                abi_long ret = do_syscall(env, env->r[8], env->r[0], env->r[1], env->r[2], env->r[3], env->r[4], env->r[5],  0, 0);
+                env->r[0] = ret;
+                fprintf(stderr, "GOT SYSCALL, num=%d\n", env->r[8]);
+                break;
+            }
 	        default:
                 g_assert_not_reached();
         }

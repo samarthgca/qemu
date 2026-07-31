@@ -4163,6 +4163,14 @@ static void arc_tr_translate_insn(DisasContextBase *dcbase, CPUState *cs)
 
 }
 
+static bool trans_TRAP_S(DisasContext *dc, arg_TRAP_S *a)
+{
+    tcg_gen_movi_i32(cpu_pc, dc->base.pc_next);
+    gen_helper_raise_exception(tcg_env, tcg_constant_i32(EXCP_SYSCALL));
+    dc->base.is_jmp = DISAS_NORETURN;
+    return true;
+}
+
 static void arc_tr_init_disas_context(DisasContextBase *db, CPUState *cs) { }
 
 static void arc_tr_tb_start(DisasContextBase *db, CPUState *cs) {}

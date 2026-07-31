@@ -77,3 +77,10 @@ void HELPER(sr)(CPUArcState *env, uint32_t addr, uint32_t val)
     }
 }
 
+void HELPER(raise_exception)(CPUArcState *env, uint32_t index)
+{
+    CPUState *cs = env_cpu(env);
+    cs->exception_index = index;
+    cpu_loop_exit(cs);
+}
+
