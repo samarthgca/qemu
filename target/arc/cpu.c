@@ -10,7 +10,16 @@
 static TCGTBCPUState arc_get_tb_cpu_state(CPUState *cs)
 {
     CPUArchState *env = cpu_env(cs);
-    return (TCGTBCPUState){ .pc = env->pc };
+    uint64_t cs_base = 0;
+    uint64_t lend_dist = env->lp_end - (env->pc & -(1u << TARGET_PAGE_BITS));
+    if (lend_dist < (1u << TARGET_PAGE_BITS) + 8) {
+        uint64_t lbeg_off = env->lp_end - env->lp_start;
+        cs_base = lend_dist & ARC_CSBASE_LEND_MASK;
+        if (lbeg_off < 256) {
+            cs_base |= (lbeg_off << ARC_CSBASE_LBEG_OFF_SHIFT) & ARC_CSBASE_LBEG_OFF_MASK;
+        }
+    }
+    return (TCGTBCPUState){ .pc = env->pc, .cs_base = cs_base };
 }
 
 static int arc_cpu_mmu_index(CPUState *cs, bool ifetch)
@@ -18,7 +27,14 @@ static int arc_cpu_mmu_index(CPUState *cs, bool ifetch)
     return MMU_USER_IDX;
 }
 
-static const TCGCPUOps arc_tcg_ops = {.mmu_index = arc_cpu_mmu_index, .get_tb_cpu_state = arc_get_tb_cpu_state, .initialize     = arc_translate_init,.translate_code = arc_translate_code,};
+static void arc_restore_state_to_opc(CPUState *cs, const TranslationBlock *tb,
+                                      const uint64_t *data)
+{
+    CPUArchState *env = cpu_env(cs);
+    env->pc = data[0];
+}
+
+static const TCGCPUOps arc_tcg_ops = {.mmu_index = arc_cpu_mmu_index, .get_tb_cpu_state = arc_get_tb_cpu_state, .initialize     = arc_translate_init,.translate_code = arc_translate_code, .restore_state_to_opc = arc_restore_state_to_opc,};
 
 static void arc_cpu_realizefn(DeviceState *dev, Error **errp)
 {
@@ -80,4 +96,5 @@ static const TypeInfo arc_cpus_type_infos[] = {
         .class_init = arc_cpu_class_init,
     },
   };
-  DEFINE_TYPES(arc_cpus_type_infos)
+
+DEFINE_TYPES(arc_cpus_type_infos)

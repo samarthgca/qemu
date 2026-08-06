@@ -644,6 +644,78 @@ static bool trans_BRANCH1_C_U6(disassemble_info *info, arg_BRANCH1_C_U6 *a)
     return true;
 }
 
+static bool trans_BREQ_C(disassemble_info *info, arg_BREQ_C *a)
+{
+    output("breq", "r%d, r%d, %d", a->b, a->c, a->sbc);
+    return true;
+}
+
+static bool trans_BREQ_C_U6(disassemble_info *info, arg_BREQ_C_U6 *a)
+{
+    output("breq", "r%d, %d, %d", a->b, a->u, a->sbc);
+    return true;
+}
+
+static bool trans_BRNE_C(disassemble_info *info, arg_BRNE_C *a)
+{
+    output("brne", "r%d, r%d, %d", a->b, a->c, a->sbc);
+    return true;
+}
+
+static bool trans_BRNE_C_U6(disassemble_info *info, arg_BRNE_C_U6 *a)
+{
+    output("brne", "r%d, %d, %d", a->b, a->u, a->sbc);
+    return true;
+}
+
+static bool trans_BRLT_C(disassemble_info *info, arg_BRLT_C *a)
+{
+    output("brlt", "r%d, r%d, %d", a->b, a->c, a->sbc);
+    return true;
+}
+
+static bool trans_BRLT_C_U6(disassemble_info *info, arg_BRLT_C_U6 *a)
+{
+    output("brlt", "r%d, %d, %d", a->b, a->u, a->sbc);
+    return true;
+}
+
+static bool trans_BRGE_C(disassemble_info *info, arg_BRGE_C *a)
+{
+    output("brge", "r%d, r%d, %d", a->b, a->c, a->sbc);
+    return true;
+}
+
+static bool trans_BRGE_C_U6(disassemble_info *info, arg_BRGE_C_U6 *a)
+{
+    output("brge", "r%d, %d, %d", a->b, a->u, a->sbc);
+    return true;
+}
+
+static bool trans_BRLO_C(disassemble_info *info, arg_BRLO_C *a)
+{
+    output("brlo", "r%d, r%d, %d", a->b, a->c, a->sbc);
+    return true;
+}
+
+static bool trans_BRLO_C_U6(disassemble_info *info, arg_BRLO_C_U6 *a)
+{
+    output("brlo", "r%d, %d, %d", a->b, a->u, a->sbc);
+    return true;
+}
+
+static bool trans_BRHS_C(disassemble_info *info, arg_BRHS_C *a)
+{
+    output("brhs", "r%d, r%d, %d", a->b, a->c, a->sbc);
+    return true;
+}
+
+static bool trans_BRHS_C_U6(disassemble_info *info, arg_BRHS_C_U6 *a)
+{
+    output("brhs", "r%d, %d, %d", a->b, a->u, a->sbc);
+    return true;
+}
+
 static bool trans_NOT(disassemble_info *info, arg_NOT *a)
 {
     output("not", "r%d, r%d", a->b, a->c);
@@ -1683,6 +1755,30 @@ static bool trans_DIVU(disassemble_info *info, arg_DIVU *a)
     return true;
 }
 
+static bool trans_REMU(disassemble_info *info, arg_REMU *a)
+{
+    output("remu", "r%d, r%d, r%d", a->a, a->b, a->c);
+    return true;
+}
+
+static bool trans_REMU_S12(disassemble_info *info, arg_REMU_S12 *a)
+{
+    output("remu", "r%d, r%d, %d", a->b, a->b, a->s);
+    return true;
+}
+
+static bool trans_REMU_CC(disassemble_info *info, arg_REMU_CC *a)
+{
+    output("remu.cc", "r%d, r%d", a->b, a->c);
+    return true;
+}
+
+static bool trans_REMU_CC_U6(disassemble_info *info, arg_REMU_CC_U6 *a)
+{
+    output("remu.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
 static bool trans_DIVU_U6(disassemble_info *info, arg_DIVU_U6 *a)
 {
     output("divu", "r%d, r%d, %d", a->a, a->b, a->u);
@@ -2304,6 +2400,84 @@ static bool trans_VSUB4H_CC(disassemble_info *info, arg_VSUB4H_CC *a)
 static bool trans_VSUB4H_CC_U6(disassemble_info *info, arg_VSUB4H_CC_U6 *a)
 {
     output("vsub4h.cc", "r%d, %d", a->b, a->u);
+    return true;
+}
+
+static bool trans_BL(disassemble_info *info, arg_BL *a)
+{
+    output("bl", "%d", a->s * 4);
+    return true;
+}
+
+static bool trans_BL_D(disassemble_info *info, arg_BL_D *a)
+{
+    output("bl.d", "%d", a->s * 4);
+    return true;
+}
+
+static bool trans_ST_S9(disassemble_info *info, arg_ST_S9 *a)
+{
+    output("st", "r%d, [r%d,%d]", a->c, a->b, a->s);
+    return true;
+}
+
+static bool trans_LP(disassemble_info *info, arg_LP *a)
+{
+      output("lp", "%d", a->s);
+      return true;
+}
+
+static bool trans_LPCC(disassemble_info *info, arg_LPCC *a)
+{
+      output("lpcc", "%d, %d", a->q, a->s);
+      return true;
+}
+
+static bool trans_XBFU(disassemble_info *info, arg_XBFU *a)
+{
+      output("xbfu", "r%d, r%d, r%d", a->a, a->b, a->c);
+      return true;
+}
+
+static bool trans_XBFU_U6(disassemble_info *info, arg_XBFU_U6 *a)
+{
+      output("xbfu", "r%d, r%d, %d", a->a, a->b, a->u);
+      return true;
+}
+
+static bool trans_ST_S9_IMM(disassemble_info *info, arg_ST_S9_IMM *a)
+{
+    output("st", "%d, [r%d,%d]", a->c, a->b, a->s);
+    return true;
+}
+
+static bool trans_LLOCK(disassemble_info *info, arg_LLOCK *a)
+{
+    output("llock", "r%d, [r%d]", a->b, a->c);
+    return true;
+}
+
+static bool trans_SCOND(disassemble_info *info, arg_SCOND *a)
+{
+    output("scond", "r%d, [r%d]", a->b, a->c);
+    return true;
+}
+
+static bool trans_EX(disassemble_info *info, arg_EX *a)
+{
+    output("ex", "r%d, [r%d]", a->b, a->c);
+    return true;
+}
+
+static bool trans_DMB(disassemble_info *info, arg_DMB *a)
+{
+    output("dmb", "%d", a->c);
+    return true;
+}
+
+static bool trans_REMU_U6(disassemble_info *info, arg_REMU_U6 *a)
+{
+    output("remu", "r%d, r%d, %d", a->a, a->b, a->u);
     return true;
 }
 

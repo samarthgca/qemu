@@ -5,6 +5,10 @@
 #define MMU_KERNEL_IDX 1
 #define EXCP_SYSCALL 1
 #define EXCP_ILLEGAL 2
+#define ARC_CSBASE_LEND_MASK     0x0000ffff
+#define ARC_CSBASE_LEND_SHIFT    0
+#define ARC_CSBASE_LBEG_OFF_MASK 0x00ff0000
+#define ARC_CSBASE_LBEG_OFF_SHIFT 16
 
 #include "qemu/typedefs.h"
 #include "cpu-qom.h"
@@ -15,7 +19,7 @@ void arc_translate_init(void);
 void arc_translate_code(CPUState *cs, TranslationBlock *tb, int *max_insns, vaddr pc, void *host_pc);
 
 typedef struct CPUArchState {
-	uint32_t r[32];
+	uint32_t r[64];
 	uint32_t pc;
     uint32_t zf;
     uint32_t nf;
@@ -38,6 +42,9 @@ typedef struct CPUArchState {
     uint32_t isa_config;
     uint32_t ACCH;
     uint32_t ACCL;
+    uint32_t lp_start;
+    uint32_t lp_end;
+    uint32_t tls_value;
 }CPUArcState;
 
 struct ArchCPU {
